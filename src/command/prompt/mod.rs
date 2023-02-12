@@ -1,5 +1,8 @@
+mod segment;
+
 use crate::command::PromptArgs;
 
 pub fn run(_args: &PromptArgs) {
-    print!("croque $ ");
+    segment::print_segments();
+    print!(" croque $ ");
 }
