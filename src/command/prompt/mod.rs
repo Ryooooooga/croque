@@ -1,8 +1,7 @@
-mod segment;
-
-use crate::command::PromptArgs;
+use crate::{command::PromptArgs, config::Config, segment};
 
 pub fn run(_args: &PromptArgs) {
-    segment::print_segments();
+    let config = &Config::default();
+    segment::print_segments(config);
     print!(" croque $ ");
 }

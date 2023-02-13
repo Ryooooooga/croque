@@ -1,4 +1,5 @@
 mod command;
+mod segment;
 mod shell;
 
 use clap::Parser;

@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use crate::config::Config;
+
 use super::{Segment, SegmentBuilder, SegmentError};
 
 fn current_dir() -> Option<PathBuf> {
@@ -21,7 +23,7 @@ impl Default for PathSegmentBuilder<'_> {
 }
 
 impl SegmentBuilder for PathSegmentBuilder<'_> {
-    fn build(&self) -> Result<Option<Segment>, SegmentError> {
+    fn build(&self, config: &Config) -> Result<Option<Segment>, SegmentError> {
         let cwd = match (self.current_dir)() {
             Some(cwd) => cwd,
             None => return Ok(None),
@@ -61,11 +63,13 @@ mod tests {
         ];
 
         for s in scenarios {
+            let config = &Config::default();
+
             let target = PathSegmentBuilder {
                 current_dir: &|| s.cwd.map(PathBuf::from),
             };
 
-            let actual = target.build();
+            let actual = target.build(config);
 
             assert_eq!(actual, s.expected, "{}", s.testname);
         }
