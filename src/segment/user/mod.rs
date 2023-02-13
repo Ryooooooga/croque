@@ -1,6 +1,6 @@
 use crate::config::Config;
 
-use super::{Segment, SegmentBuilder, SegmentError};
+use super::{Segment, SegmentBuilder};
 
 #[cfg(target_os = "windows")]
 mod users {
@@ -34,13 +34,16 @@ impl Default for UserSegmentBuilder<'_> {
 }
 
 impl SegmentBuilder for UserSegmentBuilder<'_> {
-    fn build(&self, config: &Config) -> Result<Option<Segment>, SegmentError> {
+    fn build(&self, config: &Config) -> Option<Segment> {
+        let config = &config.user;
+
         let username = (self.username)().unwrap_or_else(|| String::from("?"));
         let hostname = (self.hostname)().unwrap_or_else(|| String::from("?"));
 
-        Ok(Some(Segment {
+        Some(Segment {
             content: format!("{username}@{hostname}"),
-        }))
+            style: config.style.to_ansi(),
+        })
     }
 }
 
@@ -54,7 +57,7 @@ mod tests {
             testname: &'static str,
             username: Option<&'static str>,
             hostname: Option<&'static str>,
-            expected: Result<Option<Segment>, SegmentError>,
+            expected_content: Option<&'static str>,
         }
 
         let scenarios = &[
@@ -62,25 +65,19 @@ mod tests {
                 testname: "should return segment",
                 username: Some("user"),
                 hostname: Some("host"),
-                expected: Ok(Some(Segment {
-                    content: "user@host".to_string(),
-                })),
+                expected_content: Some("user@host"),
             },
             Scenario {
                 testname: "should display `?` if username returns none",
                 username: None,
                 hostname: Some("host"),
-                expected: Ok(Some(Segment {
-                    content: "?@host".to_string(),
-                })),
+                expected_content: Some("?@host"),
             },
             Scenario {
                 testname: "should display `?` if hostname returns none",
                 username: Some("user"),
                 hostname: None,
-                expected: Ok(Some(Segment {
-                    content: "user@?".to_string(),
-                })),
+                expected_content: Some("user@?"),
             },
         ];
 
@@ -93,8 +90,9 @@ mod tests {
             };
 
             let actual = target.build(config);
+            let actual_content = actual.as_ref().map(|seg| seg.content.as_str());
 
-            assert_eq!(actual, s.expected, "{}", s.testname);
+            assert_eq!(actual_content, s.expected_content, "{}", s.testname);
         }
     }
 }

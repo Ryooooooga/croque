@@ -1,4 +1,6 @@
+use self::{os::OsSegmentBuilder, path::PathSegmentBuilder, user::UserSegmentBuilder};
 use crate::config::Config;
+use ansi_term::Style;
 
 mod duration;
 mod os;
@@ -7,33 +9,36 @@ mod status;
 mod time;
 mod user;
 
-#[derive(Debug, PartialEq, thiserror::Error)]
-pub enum SegmentError {}
-
 #[derive(Debug, PartialEq)]
 pub struct Segment {
     pub content: String,
+    pub style: Style,
 }
 
 pub trait SegmentBuilder {
-    fn build(&self, config: &Config) -> Result<Option<Segment>, SegmentError>;
+    fn build(&self, config: &Config) -> Option<Segment>;
+}
+
+#[derive(Default)]
+struct SegmentBuilders<'a> {
+    os: OsSegmentBuilder,
+    path: PathSegmentBuilder<'a>,
+    user: UserSegmentBuilder<'a>,
 }
 
 pub fn print_segments(config: &Config) {
-    let os_builder = os::OsSegmentBuilder::default();
-    let path_builder = path::PathSegmentBuilder::default();
-    let user_builder = user::UserSegmentBuilder::default();
+    let builders = SegmentBuilders::default();
 
     let segments = ["os", "user", "path"];
     for segment in segments {
         let seg = match segment {
-            "os" => os_builder.build(config),
-            "path" => path_builder.build(config),
-            "user" => user_builder.build(config),
-            _ => Ok(None),
+            "os" => builders.os.build(config),
+            "path" => builders.path.build(config),
+            "user" => builders.user.build(config),
+            _ => None,
         };
 
-        if let Ok(Some(seg)) = seg {
+        if let Some(seg) = seg {
             print!("[{}]", seg.content);
         }
     }

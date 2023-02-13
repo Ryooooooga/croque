@@ -12,6 +12,7 @@ keywords = [
 
 
 [dependencies]
+ansi_term = "0.12"
 clap = { version = "4.1", features = ["derive"] }
 git2 = { version = "0.16", default-features = false }
 hostname = "0.3"

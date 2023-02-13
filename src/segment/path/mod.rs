@@ -1,8 +1,6 @@
-use std::path::PathBuf;
-
+use super::{Segment, SegmentBuilder};
 use crate::config::Config;
-
-use super::{Segment, SegmentBuilder, SegmentError};
+use std::{borrow::Cow, path::PathBuf};
 
 fn current_dir() -> Option<PathBuf> {
     std::env::current_dir()
@@ -23,15 +21,27 @@ impl Default for PathSegmentBuilder<'_> {
 }
 
 impl SegmentBuilder for PathSegmentBuilder<'_> {
-    fn build(&self, config: &Config) -> Result<Option<Segment>, SegmentError> {
-        let cwd = match (self.current_dir)() {
-            Some(cwd) => cwd,
-            None => return Ok(None),
+    fn build(&self, config: &Config) -> Option<Segment> {
+        let config = &config.path;
+
+        let cwd = (self.current_dir)();
+        let is_dir = cwd.as_ref().map(|cwd| cwd.is_dir()).unwrap_or(false);
+
+        let style = if is_dir {
+            &config.normal.style
+        } else {
+            &config.error.style
         };
 
-        Ok(Some(Segment {
-            content: format!("{}", cwd.to_string_lossy(),),
-        }))
+        Some(Segment {
+            content: format!(
+                "{}",
+                cwd.as_ref()
+                    .map(|cwd| cwd.to_string_lossy())
+                    .unwrap_or_else(|| Cow::from("<unknown>"))
+            ),
+            style: style.to_ansi(),
+        })
     }
 }
 
@@ -41,24 +51,40 @@ mod tests {
 
     #[test]
     fn test_build() {
-        struct Scenario {
-            testname: &'static str,
-            cwd: Option<&'static str>,
-            expected: Result<Option<Segment>, SegmentError>,
+        let config = &Config::default();
+        let cwd = std::env::current_dir().unwrap();
+        let cwd = cwd.to_string_lossy();
+
+        struct Scenario<'a> {
+            testname: &'a str,
+            cwd: Option<&'a str>,
+            expected: Option<Segment>,
         }
 
         let scenarios = &[
             Scenario {
                 testname: "should return segment if cwd is not none",
-                cwd: Some("/home/john/Desktop"),
-                expected: Ok(Some(Segment {
-                    content: "/home/john/Desktop".to_string(),
-                })),
+                cwd: Some(cwd.as_ref()),
+                expected: Some(Segment {
+                    content: cwd.to_string(),
+                    style: config.path.normal.style.to_ansi(),
+                }),
             },
             Scenario {
-                testname: "should return none if cwd is none",
+                testname: "should return <unknown> if cwd is none",
                 cwd: None,
-                expected: Ok(None),
+                expected: Some(Segment {
+                    content: "<unknown>".to_string(),
+                    style: config.path.error.style.to_ansi(),
+                }),
+            },
+            Scenario {
+                testname: "should return error style if cwd is not a directory",
+                cwd: Some("NO_SUCH_DIR"),
+                expected: Some(Segment {
+                    content: "NO_SUCH_DIR".to_string(),
+                    style: config.path.error.style.to_ansi(),
+                }),
             },
         ];
 

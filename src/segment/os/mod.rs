@@ -1,23 +1,24 @@
 use crate::config::Config;
 
-use super::{Segment, SegmentBuilder, SegmentError};
+use super::{Segment, SegmentBuilder};
 
 #[derive(Debug, Default)]
 pub struct OsSegmentBuilder {}
 
 impl SegmentBuilder for OsSegmentBuilder {
-    fn build(&self, config: &Config) -> Result<Option<Segment>, SegmentError> {
+    fn build(&self, config: &Config) -> Option<Segment> {
         #[cfg(target_os = "linux")]
-        let os = "linux";
+        let config = &config.os.linux;
 
         #[cfg(target_os = "macos")]
-        let os = "mac";
+        let config = &config.os.mac;
 
         #[cfg(target_os = "windows")]
-        let os = "windows";
+        let config = &config.os.windows;
 
-        Ok(Some(Segment {
-            content: os.to_string(),
-        }))
+        Some(Segment {
+            content: config.content.clone(),
+            style: config.style.to_ansi(),
+        })
     }
 }
