@@ -1,5 +1,4 @@
-use super::{Segment, SegmentBuilder};
-use crate::config::Config;
+use super::{Context, Segment, SegmentBuilder};
 use std::{borrow::Cow, path::PathBuf};
 
 fn current_dir() -> Option<PathBuf> {
@@ -21,8 +20,8 @@ impl Default for PathSegmentBuilder<'_> {
 }
 
 impl SegmentBuilder for PathSegmentBuilder<'_> {
-    fn build(&self, config: &Config) -> Option<Segment> {
-        let config = &config.path;
+    fn build(&self, ctx: &Context) -> Option<Segment> {
+        let config = &ctx.config.path;
 
         let cwd = (self.current_dir)();
         let is_dir = cwd.as_ref().map(|cwd| cwd.is_dir()).unwrap_or(false);
@@ -47,11 +46,22 @@ impl SegmentBuilder for PathSegmentBuilder<'_> {
 
 #[cfg(test)]
 mod tests {
+    use crate::{command::SegmentArgs, config::Config, shell::Shell};
+
     use super::*;
 
     #[test]
     fn test_build() {
         let config = &Config::default();
+        let args = &SegmentArgs {
+            exit_status: 0,
+            duration: 0.0,
+            jobs: 0,
+            width: 100,
+            shell: Shell::Zsh,
+        };
+        let ctx = Context::new(config, args);
+
         let cwd = std::env::current_dir().unwrap();
         let cwd = cwd.to_string_lossy();
 
@@ -89,13 +99,11 @@ mod tests {
         ];
 
         for s in scenarios {
-            let config = &Config::default();
-
             let target = PathSegmentBuilder {
                 current_dir: &|| s.cwd.map(PathBuf::from),
             };
 
-            let actual = target.build(config);
+            let actual = target.build(&ctx);
 
             assert_eq!(actual, s.expected, "{}", s.testname);
         }

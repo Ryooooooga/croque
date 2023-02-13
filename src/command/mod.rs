@@ -19,7 +19,7 @@ pub enum Subcommand {
     Init(InitArgs),
 
     #[command(about = "Prints the prompt")]
-    Prompt(PromptArgs),
+    Prompt(SegmentArgs),
 }
 
 #[derive(Debug, clap::Args)]
@@ -29,7 +29,7 @@ pub struct InitArgs {
 }
 
 #[derive(Debug, clap::Args)]
-pub struct PromptArgs {
+pub struct SegmentArgs {
     #[arg(short = 's', long, help = "The status code of previously run command")]
     pub exit_status: i32,
 
@@ -38,6 +38,9 @@ pub struct PromptArgs {
 
     #[arg(short, long, help = "The number of currently running jobs")]
     pub jobs: i32,
+
+    #[arg(short, long, help = "The width of terminal")]
+    pub width: usize,
 
     #[arg()]
     pub shell: Shell,

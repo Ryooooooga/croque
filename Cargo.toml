@@ -12,6 +12,7 @@ keywords = [
 
 
 [dependencies]
+aho-corasick = "0.7"
 ansi_term = "0.12"
 clap = { version = "4.1", features = ["derive"] }
 git2 = { version = "0.16", default-features = false }
