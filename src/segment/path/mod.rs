@@ -5,19 +5,25 @@ use super::{Context, Segment, SegmentBuilder};
 use std::path::PathBuf;
 
 fn current_dir() -> Option<PathBuf> {
-    std::env::current_dir()
-        .ok()
-        .or_else(|| std::env::var_os("PWD").map(PathBuf::from))
+    std::env::var_os("PWD")
+        .map(PathBuf::from)
+        .or_else(|| std::env::current_dir().ok())
+}
+
+fn home_dir() -> Option<PathBuf> {
+    dirs::home_dir()
 }
 
 pub struct PathSegmentBuilder<'a> {
     current_dir: &'a dyn Fn() -> Option<PathBuf>,
+    home_dir: &'a dyn Fn() -> Option<PathBuf>,
 }
 
 impl Default for PathSegmentBuilder<'_> {
     fn default() -> Self {
         Self {
             current_dir: &current_dir,
+            home_dir: &home_dir,
         }
     }
 }
@@ -29,8 +35,20 @@ impl SegmentBuilder for PathSegmentBuilder<'_> {
         let cwd = (self.current_dir)();
         let is_dir = cwd.as_ref().map(|cwd| cwd.is_dir()).unwrap_or(false);
 
+        let home = (self.home_dir)();
+        let project_root = None;
+
         let shrinked_path = cwd
-            .map(|cwd| shrink_path(&cwd, config.shrink.enabled, config.shrink.length))
+            .map(|cwd| {
+                shrink_path(
+                    &cwd,
+                    home.as_deref(),
+                    project_root,
+                    &config.aliases,
+                    config.shrink.enabled,
+                    config.shrink.length,
+                )
+            })
             .unwrap_or_else(|| String::from("<unknown>"));
 
         let content = config.content.replace("{{.path}}", &shrinked_path);
@@ -69,6 +87,7 @@ mod tests {
         struct Scenario<'a> {
             testname: &'a str,
             cwd: Option<&'a str>,
+            home: Option<&'a str>,
             expected_content: &'a str,
         }
 
@@ -76,11 +95,13 @@ mod tests {
             Scenario {
                 testname: "should return segment if cwd is not none",
                 cwd: Some("/home/ayaka/repos/github.com/Ryooooooga/croque/src"),
-                expected_content: " /h/a/r/g/R/c/src ",
+                home: Some("/home/ayaka"),
+                expected_content: " ~/r/g/R/c/src ",
             },
             Scenario {
                 testname: "should return <unknown> if cwd is none",
                 cwd: None,
+                home: Some("/home/ayaka"),
                 expected_content: " <unknown> ",
             },
         ];
@@ -88,6 +109,7 @@ mod tests {
         for s in scenarios {
             let target = PathSegmentBuilder {
                 current_dir: &|| s.cwd.map(PathBuf::from),
+                home_dir: &|| s.home.map(PathBuf::from),
             };
 
             let actual = target.build(&ctx).unwrap();

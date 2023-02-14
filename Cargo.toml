@@ -15,6 +15,7 @@ keywords = [
 aho-corasick = "0.7"
 ansi_term = "0.12"
 clap = { version = "4.1", features = ["derive"] }
+dirs = "4.0"
 git2 = { version = "0.16", default-features = false }
 hostname = "0.3"
 serde = { version = "1.0", features = ["derive"] }

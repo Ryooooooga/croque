@@ -1,8 +1,8 @@
-mod os;
-mod path;
-mod status;
-mod style;
-mod user;
+pub mod os;
+pub mod path;
+pub mod status;
+pub mod style;
+pub mod user;
 
 use self::{os::OsConfig, path::PathConfig, status::StatusConfig, user::UserConfig};
 use serde::Deserialize;
