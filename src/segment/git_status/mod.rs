@@ -1,0 +1,149 @@
+use crate::{
+    config::git_status::GitStatusIcons,
+    info::git::{Head, RemoteStatus, WorkspaceStatus},
+};
+use aho_corasick::AhoCorasick;
+use std::borrow::Cow;
+use std::fmt::Write;
+
+use super::{Context, Segment, SegmentBuilder};
+
+#[derive(Debug)]
+pub struct GitStatusSegmentBuilder {
+    replacer: AhoCorasick,
+}
+
+impl GitStatusSegmentBuilder {
+    pub fn new() -> Self {
+        let replacer = AhoCorasick::new(["{{.head}}", "{{.workspace}}", "{{.remote}}"]);
+        Self { replacer }
+    }
+
+    fn shorten_hash(hash: &str, max_length: usize) -> &str {
+        if hash.len() > max_length {
+            &hash[..max_length]
+        } else {
+            hash
+        }
+    }
+
+    fn build_head_status<'a>(
+        head: &'a Head,
+        icons: &'a GitStatusIcons,
+        display_master: bool,
+        commit_hash_length: usize,
+    ) -> Cow<'a, str> {
+        match head {
+            Head::Branch(branch) => {
+                let icon = &icons.branch;
+                if !display_master && (branch == "master" || branch == "main") {
+                    Cow::from(icon)
+                } else if icon.is_empty() {
+                    Cow::from(branch)
+                } else {
+                    Cow::from(format!("{icon} {branch}"))
+                }
+            }
+            Head::Tag(tag) => {
+                let icon = &icons.tag;
+                if icon.is_empty() {
+                    Cow::from(tag)
+                } else {
+                    Cow::from(format!("{icon} {tag}"))
+                }
+            }
+            Head::Commit(hash) => {
+                let icon = &icons.commit;
+                let short_hash = Self::shorten_hash(hash, commit_hash_length);
+                if icon.is_empty() {
+                    Cow::from(short_hash)
+                } else {
+                    Cow::from(format!("{icon} {short_hash}"))
+                }
+            }
+        }
+    }
+
+    fn build_workspace_status(workspace: &WorkspaceStatus, icons: &GitStatusIcons) -> String {
+        let mut status = String::new();
+        status.reserve(16);
+
+        if workspace.has_new() {
+            let _ = write!(status, "{}", icons.added);
+        }
+        if workspace.has_deleted() {
+            let _ = write!(status, "{}", icons.deleted);
+        }
+        if workspace.has_modified() {
+            let _ = write!(status, "{}", icons.modified);
+        }
+        if workspace.has_renamed() {
+            let _ = write!(status, "{}", icons.renamed);
+        }
+        if workspace.has_conflict() {
+            let _ = write!(status, "{}", icons.conflicted);
+        }
+
+        if !status.is_empty() {
+            format!(" {status}")
+        } else {
+            status
+        }
+    }
+
+    fn build_remote_status(remote: &RemoteStatus, icons: &GitStatusIcons) -> Option<String> {
+        let ahead_icon = &icons.ahead;
+        let behind_icon = &icons.behind;
+        match (remote.ahead, remote.behind) {
+            (0, 0) => None,
+            (ahead, 0) => Some(format!(" {ahead_icon}{ahead}")),
+            (0, behind) => Some(format!(" {behind_icon}{behind}")),
+            (ahead, behind) => Some(format!(" {ahead_icon}{ahead}{behind_icon}{behind}")),
+        }
+    }
+}
+
+impl Default for GitStatusSegmentBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SegmentBuilder for GitStatusSegmentBuilder {
+    fn build(&self, ctx: &Context) -> Option<Segment> {
+        let config = &ctx.config.git_status;
+        let git_info = ctx.git_info?;
+
+        let head = Self::build_head_status(
+            &git_info.head,
+            &config.icons,
+            config.display_master,
+            config.commit_hash_length,
+        );
+
+        let workspace = Self::build_workspace_status(&git_info.workspace, &config.icons);
+
+        let remote = git_info
+            .remote
+            .as_ref()
+            .and_then(|remote| Self::build_remote_status(remote, &config.icons))
+            .unwrap_or_default();
+
+        let content = self
+            .replacer
+            .replace_all(&config.content, &[head.as_ref(), &workspace, &remote]);
+
+        let style = if git_info.workspace.has_conflict() {
+            &config.conflicted.style
+        } else if git_info.workspace.has_unstaged_changes() {
+            &config.unstaged.style
+        } else if git_info.workspace.has_staged_changes() {
+            &config.staged.style
+        } else {
+            &config.clean.style
+        };
+        let style = style.to_ansi();
+
+        Some(Segment { content, style })
+    }
+}

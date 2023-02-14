@@ -31,6 +31,42 @@ pub struct WorkspaceStatus {
     conflicted: u32,
 }
 
+impl WorkspaceStatus {
+    pub fn has_new(&self) -> bool {
+        self.unstaged_new > 0 || self.staged_new > 0
+    }
+
+    pub fn has_deleted(&self) -> bool {
+        self.unstaged_deleted > 0 || self.staged_deleted > 0
+    }
+
+    pub fn has_modified(&self) -> bool {
+        self.unstaged_changed > 0 || self.staged_changed > 0
+    }
+
+    pub fn has_renamed(&self) -> bool {
+        self.unstaged_renamed > 0 || self.staged_renamed > 0
+    }
+
+    pub fn has_conflict(&self) -> bool {
+        self.conflicted > 0
+    }
+
+    pub fn has_unstaged_changes(&self) -> bool {
+        self.unstaged_new > 0
+            || self.unstaged_deleted > 0
+            || self.unstaged_changed > 0
+            || self.unstaged_renamed > 0
+    }
+
+    pub fn has_staged_changes(&self) -> bool {
+        self.staged_new > 0
+            || self.staged_deleted > 0
+            || self.staged_changed > 0
+            || self.staged_renamed > 0
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct RemoteStatus {
     pub ahead: u32,
@@ -70,7 +106,11 @@ fn head_status(repo: &Repository, head_ref: &Option<Reference>) -> Head {
 
 fn workspace_status(repo: &Repository) -> WorkspaceStatus {
     let mut status_options = StatusOptions::new();
-    status_options.include_untracked(true);
+    status_options
+        .include_untracked(true)
+        .renames_head_to_index(true)
+        .renames_index_to_workdir(true)
+        .renames_from_rewrites(true);
 
     let mut status = WorkspaceStatus {
         unstaged_new: 0,
@@ -122,7 +162,7 @@ fn workspace_status(repo: &Repository) -> WorkspaceStatus {
 }
 
 fn remote_status(repo: &Repository, head_ref: &Reference) -> Option<RemoteStatus> {
-    let branch_name = head_ref.name()?;
+    let branch_name = head_ref.shorthand()?;
     let local_branch = repo
         .find_branch(branch_name, git2::BranchType::Local)
         .ok()?;

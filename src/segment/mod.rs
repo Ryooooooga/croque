@@ -1,4 +1,5 @@
 mod duration;
+mod git_status;
 mod git_user;
 mod os;
 mod path;
@@ -8,8 +9,9 @@ mod time;
 mod user;
 
 use self::{
-    git_user::GitUserSegmentBuilder, os::OsSegmentBuilder, path::PathSegmentBuilder,
-    presenter::Presenter, status::StatusSegmentBuilder, user::UserSegmentBuilder,
+    git_status::GitStatusSegmentBuilder, git_user::GitUserSegmentBuilder, os::OsSegmentBuilder,
+    path::PathSegmentBuilder, presenter::Presenter, status::StatusSegmentBuilder,
+    user::UserSegmentBuilder,
 };
 use crate::{
     command::SegmentArgs,
@@ -52,6 +54,7 @@ struct SegmentBuilders<'a> {
     path: PathSegmentBuilder<'a>,
     status: StatusSegmentBuilder<'a>,
     user: UserSegmentBuilder<'a>,
+    git_status: GitStatusSegmentBuilder,
     git_user: GitUserSegmentBuilder,
 }
 
@@ -73,7 +76,7 @@ pub fn print_segments(ctx: &Context) -> io::Result<()> {
             SegmentKind::Status => builders.status.build(ctx),
             SegmentKind::Time => None,
             SegmentKind::User => builders.user.build(ctx),
-            SegmentKind::GitStatus => None,
+            SegmentKind::GitStatus => builders.git_status.build(ctx),
             SegmentKind::GitUser => builders.git_user.build(ctx),
         });
 

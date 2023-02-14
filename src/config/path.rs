@@ -36,9 +36,9 @@ impl PathConfig {
 impl Default for PathConfig {
     fn default() -> Self {
         Self {
-            normal: NormalPathConfig::default(),
-            error: ErrorPathConfig::default(),
-            shrink: ShrinkPathConfig::default(),
+            normal: Default::default(),
+            error: Default::default(),
+            shrink: Default::default(),
             aliases: Self::default_aliases(),
             content: Self::default_content(),
         }

@@ -25,9 +25,9 @@ impl StatusConfig {
 impl Default for StatusConfig {
     fn default() -> Self {
         Self {
-            icons: StatusIcons::default(),
-            succeeded: SucceededStatusConfig::default(),
-            failed: FailedStatusConfig::default(),
+            icons: Default::default(),
+            succeeded: Default::default(),
+            failed: Default::default(),
             content: Self::default_content(),
         }
     }
