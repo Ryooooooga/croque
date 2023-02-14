@@ -143,7 +143,7 @@ mod tests {
                 width: 100,
                 shell: Shell::Zsh,
             };
-            let ctx = Context::new(&config, args);
+            let ctx = Context::new(&config, args, None);
 
             let is_root = || s.is_root;
             let target = StatusSegmentBuilder::new(&is_root);

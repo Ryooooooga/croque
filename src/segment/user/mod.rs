@@ -113,7 +113,7 @@ mod tests {
                 shell: Shell::Zsh,
             };
 
-            let ctx = Context::new(&config, args);
+            let ctx = Context::new(&config, args, None);
 
             let username = || s.username.map(String::from);
             let hostname = || s.hostname.map(String::from);

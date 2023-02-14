@@ -1,10 +1,13 @@
+pub mod git_user;
 pub mod os;
 pub mod path;
 pub mod status;
 pub mod style;
 pub mod user;
 
-use self::{os::OsConfig, path::PathConfig, status::StatusConfig, user::UserConfig};
+use self::{
+    git_user::GitUserConfig, os::OsConfig, path::PathConfig, status::StatusConfig, user::UserConfig,
+};
 use serde::Deserialize;
 use std::default::Default;
 
@@ -23,6 +26,9 @@ pub struct Config {
     pub status: StatusConfig,
 
     #[serde(default)]
+    pub git_user: GitUserConfig,
+
+    #[serde(default)]
     pub segment_separators: SegmentSeparators,
 
     #[serde(default = "Config::default_segments")]
@@ -33,7 +39,13 @@ impl Config {
     fn default_segments() -> Vec<Line> {
         vec![
             Line {
-                left: vec![SegmentKind::Os, SegmentKind::User, SegmentKind::Path],
+                left: vec![
+                    SegmentKind::Os,
+                    SegmentKind::User,
+                    SegmentKind::Path,
+                    SegmentKind::GitStatus,
+                    SegmentKind::GitUser,
+                ],
                 right: vec![SegmentKind::Time],
             },
             Line {
@@ -51,6 +63,7 @@ impl Default for Config {
             user: UserConfig::default(),
             path: PathConfig::default(),
             status: StatusConfig::default(),
+            git_user: GitUserConfig::default(),
             segment_separators: SegmentSeparators::default(),
             segments: Self::default_segments(),
         }
@@ -119,4 +132,6 @@ pub enum SegmentKind {
     Status,
     Time,
     User,
+    GitStatus,
+    GitUser,
 }

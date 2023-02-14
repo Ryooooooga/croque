@@ -36,7 +36,7 @@ impl SegmentBuilder for PathSegmentBuilder<'_> {
         let is_dir = cwd.as_ref().map(|cwd| cwd.is_dir()).unwrap_or(false);
 
         let home = (self.home_dir)();
-        let project_root = None;
+        let project_root = ctx.git_info.and_then(|info| info.workdir.as_deref());
 
         let shrinked_path = cwd
             .map(|cwd| {
@@ -82,7 +82,7 @@ mod tests {
             width: 100,
             shell: Shell::Zsh,
         };
-        let ctx = Context::new(config, args);
+        let ctx = Context::new(config, args, None);
 
         struct Scenario<'a> {
             testname: &'a str,

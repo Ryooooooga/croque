@@ -1,5 +1,6 @@
 mod command;
 mod config;
+mod info;
 mod segment;
 mod shell;
 
