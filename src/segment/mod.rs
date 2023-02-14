@@ -70,4 +70,6 @@ pub fn print_segments(config: &Config, args: &SegmentArgs) {
 
         presenter.display_line(left_segments).unwrap();
     }
+
+    presenter.finish().unwrap();
 }

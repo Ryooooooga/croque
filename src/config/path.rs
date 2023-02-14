@@ -15,6 +15,9 @@ pub struct PathConfig {
 
     #[serde(default = "PathConfig::default_aliases")]
     pub aliases: Vec<PathAlias>,
+
+    #[serde(default = "PathConfig::default_content")]
+    pub content: String,
 }
 
 impl PathConfig {
@@ -23,6 +26,10 @@ impl PathConfig {
             path: "~".to_string(),
             alias: "~".to_string(),
         }]
+    }
+
+    fn default_content() -> String {
+        " {{.path}} ".to_string()
     }
 }
 
@@ -33,6 +40,7 @@ impl Default for PathConfig {
             error: ErrorPathConfig::default(),
             shrink: ShrinkPathConfig::default(),
             aliases: Self::default_aliases(),
+            content: Self::default_content(),
         }
     }
 }
@@ -88,10 +96,10 @@ impl Default for ErrorPathConfig {
 #[derive(Debug, Deserialize)]
 pub struct ShrinkPathConfig {
     #[serde(default = "ShrinkPathConfig::default_enabled")]
-    enabled: bool,
+    pub enabled: bool,
 
-    #[serde(default = "ShrinkPathConfig::default_max_length")]
-    max_length: usize,
+    #[serde(default = "ShrinkPathConfig::default_length")]
+    pub length: usize,
 }
 
 impl ShrinkPathConfig {
@@ -99,7 +107,7 @@ impl ShrinkPathConfig {
         true
     }
 
-    fn default_max_length() -> usize {
+    fn default_length() -> usize {
         1
     }
 }
@@ -108,7 +116,7 @@ impl Default for ShrinkPathConfig {
     fn default() -> Self {
         Self {
             enabled: Self::default_enabled(),
-            max_length: Self::default_max_length(),
+            length: Self::default_length(),
         }
     }
 }

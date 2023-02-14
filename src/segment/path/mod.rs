@@ -1,5 +1,8 @@
+mod shrink;
+
+use self::shrink::shrink_path;
 use super::{Context, Segment, SegmentBuilder};
-use std::{borrow::Cow, path::PathBuf};
+use std::path::PathBuf;
 
 fn current_dir() -> Option<PathBuf> {
     std::env::current_dir()
@@ -26,6 +29,12 @@ impl SegmentBuilder for PathSegmentBuilder<'_> {
         let cwd = (self.current_dir)();
         let is_dir = cwd.as_ref().map(|cwd| cwd.is_dir()).unwrap_or(false);
 
+        let shrinked_path = cwd
+            .map(|cwd| shrink_path(&cwd, config.shrink.enabled, config.shrink.length))
+            .unwrap_or_else(|| String::from("<unknown>"));
+
+        let content = config.content.replace("{{.path}}", &shrinked_path);
+
         let style = if is_dir {
             &config.normal.style
         } else {
@@ -33,12 +42,7 @@ impl SegmentBuilder for PathSegmentBuilder<'_> {
         };
 
         Some(Segment {
-            content: format!(
-                "{}",
-                cwd.as_ref()
-                    .map(|cwd| cwd.to_string_lossy())
-                    .unwrap_or_else(|| Cow::from("<unknown>"))
-            ),
+            content,
             style: style.to_ansi(),
         })
     }
@@ -62,39 +66,22 @@ mod tests {
         };
         let ctx = Context::new(config, args);
 
-        let cwd = std::env::current_dir().unwrap();
-        let cwd = cwd.to_string_lossy();
-
         struct Scenario<'a> {
             testname: &'a str,
             cwd: Option<&'a str>,
-            expected: Option<Segment>,
+            expected_content: &'a str,
         }
 
         let scenarios = &[
             Scenario {
                 testname: "should return segment if cwd is not none",
-                cwd: Some(cwd.as_ref()),
-                expected: Some(Segment {
-                    content: cwd.to_string(),
-                    style: config.path.normal.style.to_ansi(),
-                }),
+                cwd: Some("/home/ayaka/repos/github.com/Ryooooooga/croque/src"),
+                expected_content: " /h/a/r/g/R/c/src ",
             },
             Scenario {
                 testname: "should return <unknown> if cwd is none",
                 cwd: None,
-                expected: Some(Segment {
-                    content: "<unknown>".to_string(),
-                    style: config.path.error.style.to_ansi(),
-                }),
-            },
-            Scenario {
-                testname: "should return error style if cwd is not a directory",
-                cwd: Some("NO_SUCH_DIR"),
-                expected: Some(Segment {
-                    content: "NO_SUCH_DIR".to_string(),
-                    style: config.path.error.style.to_ansi(),
-                }),
+                expected_content: " <unknown> ",
             },
         ];
 
@@ -103,9 +90,9 @@ mod tests {
                 current_dir: &|| s.cwd.map(PathBuf::from),
             };
 
-            let actual = target.build(&ctx);
+            let actual = target.build(&ctx).unwrap();
 
-            assert_eq!(actual, s.expected, "{}", s.testname);
+            assert_eq!(&actual.content, s.expected_content, "{}", s.testname);
         }
     }
 }

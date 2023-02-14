@@ -85,4 +85,8 @@ impl<'a, W: io::Write> Presenter<'a, W> {
         self.prev_bg = None;
         writeln!(self.out)
     }
+
+    pub fn finish(&mut self) -> io::Result<()> {
+        write!(self.out, " ")
+    }
 }
