@@ -30,6 +30,9 @@ pub struct InitArgs {
 
 #[derive(Debug, clap::Args)]
 pub struct SegmentArgs {
+    #[arg(short, long, help = "Prints the right prompt", default_value_t = false)]
+    pub right: bool,
+
     #[arg(short = 's', long, help = "The status code of previously run command")]
     pub exit_status: i32,
 

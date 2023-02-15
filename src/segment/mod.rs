@@ -61,31 +61,56 @@ struct SegmentBuilders<'a> {
     git_user: GitUserSegmentBuilder,
 }
 
+impl SegmentBuilders<'_> {
+    fn build_segment(&self, ctx: &Context, segment: &SegmentKind) -> Option<Segment> {
+        match segment {
+            SegmentKind::Duration => self.duration.build(ctx),
+            SegmentKind::Os => self.os.build(ctx),
+            SegmentKind::Path => self.path.build(ctx),
+            SegmentKind::Status => self.status.build(ctx),
+            SegmentKind::Time => self.time.build(ctx),
+            SegmentKind::User => self.user.build(ctx),
+            SegmentKind::GitStatus => self.git_status.build(ctx),
+            SegmentKind::GitUser => self.git_user.build(ctx),
+        }
+    }
+
+    fn build_segments(&self, ctx: &Context, segments: &[SegmentKind]) -> Vec<Segment> {
+        segments
+            .iter()
+            .flat_map(|seg| self.build_segment(ctx, seg))
+            .collect()
+    }
+}
+
 pub fn print_segments(ctx: &Context) -> io::Result<()> {
     let builders = SegmentBuilders::default();
 
     let mut stdout = std::io::stdout();
-    let mut presenter = Presenter::new(&mut stdout, ctx.config, &ctx.args.shell);
+    let presenter = Presenter::new(ctx.config, &ctx.args.shell, ctx.args.width);
 
-    for (row, line) in ctx.config.segments.iter().enumerate() {
-        if row > 0 {
-            presenter.next_line()?;
+    let segments = &ctx.config.segments;
+    if !ctx.args.right {
+        for (row, line) in segments.iter().enumerate() {
+            if row > 0 {
+                presenter.next_line(&mut stdout)?;
+            }
+
+            let left = builders.build_segments(ctx, &line.left);
+            let right = if row == segments.len() - 1 {
+                vec![]
+            } else {
+                builders.build_segments(ctx, &line.right)
+            };
+            presenter.display_line(&mut stdout, &left, &right)?;
         }
 
-        let left_segments = line.left.iter().flat_map(|seg| match seg {
-            SegmentKind::Duration => builders.duration.build(ctx),
-            SegmentKind::Os => builders.os.build(ctx),
-            SegmentKind::Path => builders.path.build(ctx),
-            SegmentKind::Status => builders.status.build(ctx),
-            SegmentKind::Time => builders.time.build(ctx),
-            SegmentKind::User => builders.user.build(ctx),
-            SegmentKind::GitStatus => builders.git_status.build(ctx),
-            SegmentKind::GitUser => builders.git_user.build(ctx),
-        });
-
-        presenter.display_line(left_segments)?;
+        presenter.finish_left(&mut stdout)?;
+    } else if let Some(last_line) = segments.last() {
+        // right prompt
+        let right = builders.build_segments(ctx, &last_line.right);
+        presenter.display_right(&mut stdout, &right)?;
     }
 
-    presenter.finish()?;
     Ok(())
 }

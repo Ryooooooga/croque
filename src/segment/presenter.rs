@@ -1,92 +1,194 @@
+use super::Segment;
 use crate::{config::Config, shell::Shell};
 use ansi_term::{Colour, Style};
+use std::fmt::{self, Write};
 use std::io;
-
-use super::Segment;
+use unicode_width::UnicodeWidthStr;
 
 #[derive(Debug)]
-pub struct Presenter<'a, W: io::Write> {
-    out: &'a mut W,
-    config: &'a Config,
-    shell: &'a Shell,
-
-    prev_bg: Option<Colour>,
+enum Direction {
+    Left,
+    Right,
 }
 
-impl<'a, W: io::Write> Presenter<'a, W> {
-    pub fn new(out: &'a mut W, config: &'a Config, shell: &'a Shell) -> Self {
+#[derive(Debug)]
+pub struct Presenter<'a> {
+    config: &'a Config,
+    shell: &'a Shell,
+    width: usize,
+}
+
+impl<'a> Presenter<'a> {
+    pub fn new(config: &'a Config, shell: &'a Shell, width: usize) -> Self {
         Self {
-            out,
             config,
             shell,
-            prev_bg: None,
+            width,
         }
     }
 
-    fn display_segment(&mut self, segment: &Segment) -> io::Result<()> {
+    fn segment(&self, out: &mut String, segment: &Segment) -> usize {
         let prefix = self.shell.control(segment.style.prefix());
         let suffix = self.shell.control(segment.style.suffix());
-        let content = self.shell.escape(&segment.content);
+        let content = &segment.content;
+        let escaped_content = self.shell.escape(content);
 
-        write!(self.out, "{prefix}{content}{suffix}")
+        write!(out, "{prefix}{escaped_content}{suffix}").unwrap();
+        content.width()
     }
 
-    fn display_left_closure(&mut self) -> io::Result<()> {
-        if let Some(prev_bg) = self.prev_bg {
-            let style = Style::new().fg(prev_bg);
-            let prefix = self.shell.control(style.prefix());
-            let suffix = self.shell.control(style.suffix());
-            let content = &self.config.segment_separators.solid_left;
-            write!(self.out, "{prefix}{content}{suffix}")
+    fn closure(&self, out: &mut String, color: Option<Colour>, dir: Direction) -> usize {
+        let (style, content) = if let Some(color) = color {
+            let style = Style::new().fg(color);
+            let content = match dir {
+                Direction::Left => &self.config.segment_separators.solid_left,
+                Direction::Right => &self.config.segment_separators.solid_right,
+            };
+            (style, content)
         } else {
             let style = Style::new().fg(Colour::White);
-            let prefix = self.shell.control(style.prefix());
-            let suffix = self.shell.control(style.suffix());
-            let content = &self.config.segment_separators.wire_left;
-            write!(self.out, "{prefix}{content}{suffix}")
-        }
+            let content = match dir {
+                Direction::Left => &self.config.segment_separators.wire_left,
+                Direction::Right => &self.config.segment_separators.wire_right,
+            };
+            (style, content)
+        };
+
+        let prefix = self.shell.control(style.prefix());
+        let suffix = self.shell.control(style.suffix());
+        let escaped_content = self.shell.escape(content);
+
+        write!(out, "{prefix}{escaped_content}{suffix}").unwrap();
+        content.width()
     }
 
-    fn display_left_separator(&mut self, next_bg: Option<Colour>) -> io::Result<()> {
-        if next_bg == self.prev_bg {
+    fn separator(
+        &self,
+        out: &mut String,
+        prev_bg: Option<Colour>,
+        next_bg: Option<Colour>,
+        dir: Direction,
+    ) -> usize {
+        let (style, content) = if next_bg == prev_bg {
             let style = Style::new().fg(Colour::White);
-            let prefix = self.shell.control(style.prefix());
-            let suffix = self.shell.control(style.suffix());
-            let content = &self.config.segment_separators.wire_left;
-            write!(self.out, "{prefix}{content}{suffix}")
-        } else {
-            let fg = self.prev_bg.unwrap_or(Colour::White);
+            let content = match dir {
+                Direction::Left => &self.config.segment_separators.wire_left,
+                Direction::Right => &self.config.segment_separators.wire_right,
+            };
+            (style, content)
+        } else if let Direction::Left = dir {
+            let fg = prev_bg.unwrap_or(Colour::White);
             let style = next_bg
                 .iter()
                 .fold(Style::new().fg(fg), |style, bg| style.on(*bg));
-            let prefix = self.shell.control(style.prefix());
-            let suffix = self.shell.control(style.suffix());
             let content = &self.config.segment_separators.solid_left;
-            write!(self.out, "{prefix}{content}{suffix}")
-        }
+            (style, content)
+        } else {
+            let fg = next_bg.unwrap_or(Colour::White);
+            let style = prev_bg
+                .iter()
+                .fold(Style::new().fg(fg), |style, bg| style.on(*bg));
+            let content = &self.config.segment_separators.solid_right;
+            (style, content)
+        };
+
+        let prefix = self.shell.control(style.prefix());
+        let suffix = self.shell.control(style.suffix());
+        let escaped_content = self.shell.escape(content);
+
+        write!(out, "{prefix}{escaped_content}{suffix}").unwrap();
+        content.width()
     }
 
-    pub fn display_line(&mut self, left_segments: impl Iterator<Item = Segment>) -> io::Result<()> {
-        for (i, seg) in left_segments.enumerate() {
+    fn left_contents(&self, segments: &[Segment]) -> (String, usize) {
+        let mut contents = String::new();
+        let mut width = 0;
+        let mut prev_bg = None;
+
+        for (i, seg) in segments.iter().enumerate() {
             if i > 0 {
-                self.display_left_separator(seg.style.background)?;
+                width += self.separator(
+                    &mut contents,
+                    prev_bg,
+                    seg.style.background,
+                    Direction::Left,
+                );
             }
 
-            self.display_segment(&seg)?;
-            self.prev_bg = seg.style.background;
+            width += self.segment(&mut contents, seg);
+            prev_bg = seg.style.background;
+
+            if i == segments.len() - 1 {
+                width += self.closure(&mut contents, prev_bg, Direction::Left);
+            }
         }
 
-        self.display_left_closure()?;
+        (contents, width)
+    }
+
+    fn right_contents(&self, segments: &[Segment]) -> (String, usize) {
+        let mut contents = String::new();
+        let mut width = 0;
+        let mut prev_bg = None;
+
+        for (i, seg) in segments.iter().enumerate() {
+            let next_bg = seg.style.background;
+            if i == 0 {
+                width += self.closure(&mut contents, next_bg, Direction::Right);
+            } else {
+                width += self.separator(&mut contents, prev_bg, next_bg, Direction::Right);
+            }
+
+            width += self.segment(&mut contents, seg);
+            prev_bg = next_bg;
+        }
+
+        (contents, width)
+    }
+
+    pub fn display_line<W: io::Write>(
+        &self,
+        mut out: W,
+        left: &[Segment],
+        right: &[Segment],
+    ) -> io::Result<()> {
+        let (left_contents, left_width) = self.left_contents(left);
+        let (right_contents, right_width) = self.right_contents(right);
+
+        write!(out, "{left_contents}")?;
+
+        if right_width > 0 && left_width + right_width + 1 < self.width {
+            let right_pos = self.width - right_width - 1;
+            let align_right = self.shell.control(MoveTo(right_pos));
+            write!(out, "{align_right}{right_contents}")?;
+        }
 
         Ok(())
     }
 
-    pub fn next_line(&mut self) -> io::Result<()> {
-        self.prev_bg = None;
-        writeln!(self.out)
+    pub fn next_line<W: io::Write>(&self, mut out: W) -> io::Result<()> {
+        writeln!(out)?;
+        Ok(())
     }
 
-    pub fn finish(&mut self) -> io::Result<()> {
-        write!(self.out, " ")
+    pub fn finish_left<W: io::Write>(&self, mut out: W) -> io::Result<()> {
+        write!(out, " ")?;
+        Ok(())
+    }
+
+    pub fn display_right<W: io::Write>(&self, mut out: W, right: &[Segment]) -> io::Result<()> {
+        let (right_contents, _) = self.right_contents(right);
+
+        write!(out, "{right_contents}")?;
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+struct MoveTo(usize);
+
+impl fmt::Display for MoveTo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\x1b[{}G", self.0 + 1)
     }
 }

@@ -14,9 +14,14 @@ croque::prompt() {
   croque prompt --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" zsh
 }
 
+croque::rprompt() {
+  croque prompt --right --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" zsh
+}
+
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd croque::precmd
 add-zsh-hook preexec croque::preexec
 
 setopt prompt_subst
 PROMPT='$(croque::prompt)'
+RPROMPT='$(croque::rprompt)'

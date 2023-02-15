@@ -1,3 +1,3 @@
 # Croque
 
-Blazing fast shell prompt
+Fast shell prompt

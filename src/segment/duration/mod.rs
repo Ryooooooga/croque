@@ -73,8 +73,8 @@ mod tests {
                 expected_content: None,
             },
             Scenario {
-                duration: 1.414_213,
-                expected_content: Some(" 祥1.41s "),
+                duration: 1.234_567,
+                expected_content: Some(" 祥1.23s "),
             },
             Scenario {
                 duration: 2.236,

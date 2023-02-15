@@ -58,7 +58,6 @@ impl Config {
                     SegmentKind::Path,
                     SegmentKind::GitStatus,
                     SegmentKind::GitUser,
-                    SegmentKind::Time,
                 ],
                 right: vec![SegmentKind::Time],
             },
