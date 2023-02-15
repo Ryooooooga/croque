@@ -5,11 +5,12 @@ pub mod os;
 pub mod path;
 pub mod status;
 pub mod style;
+pub mod time;
 pub mod user;
 
 use self::{
     duration::DurationConfig, git_status::GitStatusConfig, git_user::GitUserConfig, os::OsConfig,
-    path::PathConfig, status::StatusConfig, user::UserConfig,
+    path::PathConfig, status::StatusConfig, time::TimeConfig, user::UserConfig,
 };
 use serde::Deserialize;
 use std::default::Default;
@@ -30,6 +31,9 @@ pub struct Config {
 
     #[serde(default)]
     pub duration: DurationConfig,
+
+    #[serde(default)]
+    pub time: TimeConfig,
 
     #[serde(default)]
     pub git_status: GitStatusConfig,
@@ -54,6 +58,7 @@ impl Config {
                     SegmentKind::Path,
                     SegmentKind::GitStatus,
                     SegmentKind::GitUser,
+                    SegmentKind::Time,
                 ],
                 right: vec![SegmentKind::Time],
             },
@@ -73,6 +78,7 @@ impl Default for Config {
             path: Default::default(),
             status: Default::default(),
             duration: Default::default(),
+            time: Default::default(),
             git_status: Default::default(),
             git_user: Default::default(),
             segment_separators: Default::default(),
