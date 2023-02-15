@@ -9,9 +9,9 @@ mod time;
 mod user;
 
 use self::{
-    git_status::GitStatusSegmentBuilder, git_user::GitUserSegmentBuilder, os::OsSegmentBuilder,
-    path::PathSegmentBuilder, presenter::Presenter, status::StatusSegmentBuilder,
-    user::UserSegmentBuilder,
+    duration::DurationSegmentBuilder, git_status::GitStatusSegmentBuilder,
+    git_user::GitUserSegmentBuilder, os::OsSegmentBuilder, path::PathSegmentBuilder,
+    presenter::Presenter, status::StatusSegmentBuilder, user::UserSegmentBuilder,
 };
 use crate::{
     command::SegmentArgs,
@@ -50,6 +50,7 @@ pub trait SegmentBuilder {
 
 #[derive(Default)]
 struct SegmentBuilders<'a> {
+    duration: DurationSegmentBuilder,
     os: OsSegmentBuilder,
     path: PathSegmentBuilder<'a>,
     status: StatusSegmentBuilder<'a>,
@@ -70,7 +71,7 @@ pub fn print_segments(ctx: &Context) -> io::Result<()> {
         }
 
         let left_segments = line.left.iter().flat_map(|seg| match seg {
-            SegmentKind::Duration => None,
+            SegmentKind::Duration => builders.duration.build(ctx),
             SegmentKind::Os => builders.os.build(ctx),
             SegmentKind::Path => builders.path.build(ctx),
             SegmentKind::Status => builders.status.build(ctx),
