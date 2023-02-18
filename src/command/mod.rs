@@ -1,4 +1,5 @@
 mod init;
+mod prepare;
 mod prompt;
 
 use crate::shell::Shell;
@@ -20,6 +21,9 @@ pub enum Subcommand {
 
     #[command(about = "Prints the prompt")]
     Prompt(SegmentArgs),
+
+    #[command(about = "Serialize info for lazy segments")]
+    Prepare(PrepareArgs),
 }
 
 #[derive(Debug, clap::Args)]
@@ -45,13 +49,28 @@ pub struct SegmentArgs {
     #[arg(short, long, help = "The width of terminal")]
     pub width: usize,
 
+    #[arg(long = "data.git")]
+    pub encoded_git_info: Option<String>,
+
     #[arg()]
     pub shell: Shell,
+}
+
+#[derive(Debug, clap::Args)]
+pub struct PrepareArgs {
+    #[arg()]
+    pub source: DataSource,
+}
+
+#[derive(Debug, Clone, clap::ValueEnum)]
+pub enum DataSource {
+    Git,
 }
 
 pub fn run(cmd: &Command) {
     match &cmd.subcommand {
         Subcommand::Init(args) => init::run(args),
         Subcommand::Prompt(args) => prompt::run(args),
+        Subcommand::Prepare(args) => prepare::run(args),
     };
 }

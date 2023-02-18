@@ -1,24 +1,24 @@
 use git2::{Reference, Repository, Status, StatusOptions};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GitInfo {
     pub workdir: Option<PathBuf>,
     pub head: Head,
     pub workspace: WorkspaceStatus,
-    pub remote: Option<RemoteStatus>,
+    pub upstream: Option<UpstreamStatus>,
     pub user: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Head {
     Branch(String),
     Tag(String),
     Commit(String),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct WorkspaceStatus {
     unstaged_new: u32,
     unstaged_deleted: u32,
@@ -67,8 +67,8 @@ impl WorkspaceStatus {
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct RemoteStatus {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpstreamStatus {
     pub ahead: u32,
     pub behind: u32,
 }
@@ -161,7 +161,7 @@ fn workspace_status(repo: &Repository) -> WorkspaceStatus {
     status
 }
 
-fn remote_status(repo: &Repository, head_ref: &Reference) -> Option<RemoteStatus> {
+fn upstream_status(repo: &Repository, head_ref: &Reference) -> Option<UpstreamStatus> {
     let branch_name = head_ref.shorthand()?;
     let local_branch = repo
         .find_branch(branch_name, git2::BranchType::Local)
@@ -173,7 +173,7 @@ fn remote_status(repo: &Repository, head_ref: &Reference) -> Option<RemoteStatus
 
     let (ahead, behind) = repo.graph_ahead_behind(local_oid, upstream_oid).ok()?;
 
-    Some(RemoteStatus {
+    Some(UpstreamStatus {
         ahead: ahead as u32,
         behind: behind as u32,
     })
@@ -194,16 +194,16 @@ pub fn load_git_info() -> Option<GitInfo> {
 
     let head = head_status(&repo, &head_ref);
     let workspace = workspace_status(&repo);
-    let remote = head_ref
+    let upstream = head_ref
         .as_ref()
-        .and_then(|head_ref| remote_status(&repo, head_ref));
+        .and_then(|head_ref| upstream_status(&repo, head_ref));
     let user = user_name(&repo);
 
     Some(GitInfo {
         workdir,
         head,
         workspace,
-        remote,
+        upstream,
         user,
     })
 }

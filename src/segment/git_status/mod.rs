@@ -1,6 +1,6 @@
 use crate::{
     config::git_status::GitStatusIcons,
-    info::git::{Head, RemoteStatus, WorkspaceStatus},
+    info::git::{Head, UpstreamStatus, WorkspaceStatus},
 };
 use aho_corasick::AhoCorasick;
 use std::borrow::Cow;
@@ -91,10 +91,10 @@ impl GitStatusSegmentBuilder {
         }
     }
 
-    fn build_remote_status(remote: &RemoteStatus, icons: &GitStatusIcons) -> Option<String> {
+    fn build_upstream_status(upstream: &UpstreamStatus, icons: &GitStatusIcons) -> Option<String> {
         let ahead_icon = &icons.ahead;
         let behind_icon = &icons.behind;
-        match (remote.ahead, remote.behind) {
+        match (upstream.ahead, upstream.behind) {
             (0, 0) => None,
             (ahead, 0) => Some(format!(" {ahead_icon}{ahead}")),
             (0, behind) => Some(format!(" {behind_icon}{behind}")),
@@ -123,15 +123,15 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
 
         let workspace = Self::build_workspace_status(&git_info.workspace, &config.icons);
 
-        let remote = git_info
-            .remote
+        let upstream = git_info
+            .upstream
             .as_ref()
-            .and_then(|remote| Self::build_remote_status(remote, &config.icons))
+            .and_then(|upstream| Self::build_upstream_status(upstream, &config.icons))
             .unwrap_or_default();
 
         let content = self
             .replacer
-            .replace_all(&config.content, &[head.as_ref(), &workspace, &remote]);
+            .replace_all(&config.content, &[head.as_ref(), &workspace, &upstream]);
 
         let style = if git_info.workspace.has_conflict() {
             &config.conflicted.style

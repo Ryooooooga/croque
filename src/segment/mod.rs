@@ -86,7 +86,7 @@ impl SegmentBuilders<'_> {
 pub fn print_segments(ctx: &Context) -> io::Result<()> {
     let builders = SegmentBuilders::default();
 
-    let mut stdout = std::io::stdout();
+    let mut stdout = std::io::stdout().lock();
     let presenter = Presenter::new(ctx.config, &ctx.args.shell, ctx.args.width);
 
     let segments = &ctx.config.segments;
