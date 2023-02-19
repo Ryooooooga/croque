@@ -37,6 +37,7 @@ croque::prepare() {
     croque::prepare-gh-async
   else
     __croque_git_info="$(croque::prepare-git)"
+    __croque_gh_info="$(croque::prepare-gh)"
   fi
 }
 
