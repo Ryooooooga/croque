@@ -76,13 +76,16 @@ mod tests {
     fn test_build() {
         let config = &Config::default();
         let args = &SegmentArgs {
+            right: false,
             exit_status: 0,
             duration: 0.0,
             jobs: 0,
             width: 100,
+            encoded_git_info: None,
+            encoded_gh_info: None,
             shell: Shell::Zsh,
         };
-        let ctx = Context::new(config, args, None);
+        let ctx = Context::new(config, args, None, None);
 
         struct Scenario<'a> {
             testname: &'a str,

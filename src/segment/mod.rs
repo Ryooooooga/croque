@@ -17,7 +17,7 @@ use self::{
 use crate::{
     command::SegmentArgs,
     config::{Config, SegmentKind},
-    info::git::GitInfo,
+    info::{gh::GhInfo, git::GitInfo},
 };
 use ansi_term::Style;
 use std::io;
@@ -33,14 +33,21 @@ pub struct Context<'a> {
     config: &'a Config,
     args: &'a SegmentArgs,
     git_info: Option<&'a GitInfo>,
+    gh_info: Option<&'a GhInfo>,
 }
 
 impl<'a> Context<'a> {
-    pub fn new(config: &'a Config, args: &'a SegmentArgs, git_info: Option<&'a GitInfo>) -> Self {
+    pub fn new(
+        config: &'a Config,
+        args: &'a SegmentArgs,
+        git_info: Option<&'a GitInfo>,
+        gh_info: Option<&'a GhInfo>,
+    ) -> Self {
         Self {
             config,
             args,
             git_info,
+            gh_info,
         }
     }
 }

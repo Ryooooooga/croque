@@ -141,14 +141,17 @@ mod tests {
         let config = Config::default();
         for s in scenarios {
             let args = SegmentArgs {
+                right: false,
                 exit_status: 0,
                 duration: s.duration,
                 jobs: 0,
                 width: 100,
+                encoded_git_info: None,
+                encoded_gh_info: None,
                 shell: crate::shell::Shell::Zsh,
             };
 
-            let ctx = &Context::new(&config, &args, None);
+            let ctx = &Context::new(&config, &args, None, None);
 
             let target = DurationSegmentBuilder::default();
             let actual = target.build(ctx);

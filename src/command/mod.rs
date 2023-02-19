@@ -52,6 +52,9 @@ pub struct SegmentArgs {
     #[arg(long = "data.git")]
     pub encoded_git_info: Option<String>,
 
+    #[arg(long = "data.gh")]
+    pub encoded_gh_info: Option<String>,
+
     #[arg()]
     pub shell: Shell,
 }
@@ -65,6 +68,7 @@ pub struct PrepareArgs {
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum DataSource {
     Git,
+    Gh,
 }
 
 pub fn run(cmd: &Command) {

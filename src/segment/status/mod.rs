@@ -137,13 +137,16 @@ mod tests {
         for s in scenarios.iter() {
             config.status.failed.display_exit_code = s.display_exit_code;
             let args = &SegmentArgs {
+                right: false,
                 exit_status: s.exit_status,
                 duration: 0.0,
                 jobs: s.jobs,
                 width: 100,
+                encoded_git_info: None,
+                encoded_gh_info: None,
                 shell: Shell::Zsh,
             };
-            let ctx = Context::new(&config, args, None);
+            let ctx = Context::new(&config, args, None, None);
 
             let is_root = || s.is_root;
             let target = StatusSegmentBuilder::new(&is_root);

@@ -1,5 +1,6 @@
 use base64::Engine;
 
+pub mod gh;
 pub mod git;
 
 fn base64_engine() -> impl Engine {
