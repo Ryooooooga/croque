@@ -15,7 +15,14 @@ use self::{
     time::TimeConfig, user::UserConfig,
 };
 use serde::Deserialize;
-use std::default::Default;
+use std::{
+    default::Default,
+    fs::File,
+    path::{Path, PathBuf},
+};
+
+const CROQUE_CONFIG_FILE: &str = "CROQUE_CONFIG_FILE";
+const XDG_CONFIG_HOME: &str = "XDG_CONFIG_HOME";
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -54,6 +61,43 @@ pub struct Config {
 }
 
 impl Config {
+    pub fn load_or_default<P: AsRef<Path>>(config_path: P) -> Config {
+        let config_path = config_path.as_ref();
+
+        if let Ok(file) = File::open(config_path) {
+            match Self::load_from_file(&file) {
+                Ok(config) => return config,
+                Err(err) => eprintln!(
+                    "croque: failed to load config file `{}`: {}",
+                    config_path.to_string_lossy(),
+                    err,
+                ),
+            }
+        }
+
+        Self::default()
+    }
+
+    fn load_from_file(file: &File) -> Result<Config, serde_yaml::Error> {
+        serde_yaml::from_reader(file)
+    }
+
+    pub fn config_path() -> PathBuf {
+        if let Some(path) = std::env::var_os(CROQUE_CONFIG_FILE) {
+            PathBuf::from(path)
+        } else if let Some(xdg_config_home) = std::env::var_os(XDG_CONFIG_HOME) {
+            let mut path = PathBuf::from(xdg_config_home);
+            path.push("croque/config.yaml");
+            path
+        } else if let Some(home_dir) = dirs::home_dir() {
+            let mut path = home_dir;
+            path.push(".config/croque/config.yaml");
+            path
+        } else {
+            PathBuf::from("/etc/croque/config.yaml")
+        }
+    }
+
     fn default_segments() -> Vec<Line> {
         vec![
             Line {

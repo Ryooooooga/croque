@@ -32,7 +32,7 @@ fn decode_gh_info(encoded_gh_info: &str) -> Option<GhInfo> {
 }
 
 pub fn run(args: &SegmentArgs) {
-    let config = &Config::default();
+    let config = Config::load_or_default(Config::config_path());
     let git_info = match &args.encoded_git_info {
         Some(s) => decode_git_info(s),
         None => load_git_info(),
@@ -42,7 +42,7 @@ pub fn run(args: &SegmentArgs) {
         None => load_gh_info(),
     };
 
-    let ctx = Context::new(config, args, git_info.as_ref(), gh_info.as_ref());
+    let ctx = Context::new(&config, args, git_info.as_ref(), gh_info.as_ref());
 
     segment::print_segments(&ctx).unwrap();
 }
