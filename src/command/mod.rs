@@ -1,8 +1,10 @@
+mod config;
 mod init;
 mod prepare;
 mod prompt;
 
 use crate::shell::Shell;
+use std::fmt;
 
 #[derive(Debug, clap::Parser)]
 #[command(version, disable_version_flag = true, author, about)]
@@ -24,6 +26,9 @@ pub enum Subcommand {
 
     #[command(about = "Serialize info for lazy segments")]
     Prepare(PrepareArgs),
+
+    #[command(about = "Prints the configuration presets")]
+    Config(ConfigArgs),
 }
 
 #[derive(Debug, clap::Args)]
@@ -71,10 +76,33 @@ pub enum DataSource {
     Gh,
 }
 
+#[derive(Debug, clap::Args)]
+pub struct ConfigArgs {
+    #[arg(short, long, help = "Theme name of the config", default_value_t = ConfigTheme::Agnoster)]
+    pub theme: ConfigTheme,
+
+    #[arg(short, long, help = "Prints the config path", default_value_t = false)]
+    pub print_config_path: bool,
+}
+
+#[derive(Debug, Clone, clap::ValueEnum)]
+pub enum ConfigTheme {
+    Agnoster,
+}
+
+impl fmt::Display for ConfigTheme {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Agnoster => write!(f, "agnoster"),
+        }
+    }
+}
+
 pub fn run(cmd: &Command) {
     match &cmd.subcommand {
         Subcommand::Init(args) => init::run(args),
         Subcommand::Prompt(args) => prompt::run(args),
         Subcommand::Prepare(args) => prepare::run(args),
+        Subcommand::Config(args) => config::run(args),
     };
 }

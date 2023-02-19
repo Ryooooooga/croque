@@ -1,0 +1,172 @@
+os:
+  linux:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  mac:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  windows:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+
+user:
+  style:
+    foreground: white
+    background: 8
+    decoration: []
+  content: " {{.user}}@{{.host}} "
+
+path:
+  normal:
+    style:
+      foreground: black
+      background: blue
+      decoration: []
+  error:
+    style:
+      foreground: black
+      background: red
+      decoration: []
+  shrink:
+    enabled: true
+    length: 1
+  aliases:
+    - path: ~
+      alias: ~
+  content: " {{.path}} "
+
+status:
+  icons:
+    succeeded: "✓"
+    failed: ""
+    root: ""
+    jobs: ""
+  succeeded:
+    style:
+      foreground: green
+      background: white
+      decoration: []
+  failed:
+    style:
+      foreground: white
+      background: red
+      decoration: []
+  content: " {{.exit_status}}{{.root}}{{.jobs}} "
+
+duration:
+  style:
+    foreground: white
+    background: 242
+    decoration: []
+  content: " 祥{{.duration}} "
+
+time:
+  format: "%H:%M:%S" # https://docs.rs/chrono/0.4.23/chrono/format/strftime/index.html
+  utc: false
+  style:
+    foreground: 8
+    background: white
+    decoration: []
+  content: "  {{.time}} "
+
+git_status:
+  icons:
+    branch: ""
+    tag: ""
+    commit: ""
+    modified: "…"
+    added: "+"
+    deleted: "-"
+    renamed: "→"
+    conflicted: ""
+    behind: ""
+    ahead: ""
+  clean:
+    style:
+      foreground: black
+      background: green
+      decoration: []
+  unstaged:
+    style:
+      foreground: black
+      background: yellow
+      decoration: []
+  staged:
+    style:
+      foreground: black
+      background: green
+      decoration: []
+  conflicted:
+    style:
+      foreground: black
+      background: red
+      decoration: []
+  display_master: true
+  commit_hash_length: 7
+  content: " {{.head}}{{.workspace}}{{.remote}} "
+
+git_user:
+  style:
+    foreground: black
+    background: 117
+    decoration: []
+  content: "  {{.name}} "
+
+gh_pull_request:
+  icons:
+    open: ""
+    draft: ""
+    closed: ""
+    merged: ""
+    comment: " "
+  open:
+    style:
+      foreground: black
+      background: 214
+      decoration: []
+  draft:
+    style:
+      foreground: black
+      background: 249
+      decoration: []
+  closed:
+    style:
+      foreground: black
+      background: 196
+      decoration: []
+  merged:
+    style:
+      foreground: black
+      background: 141
+      decoration: []
+  content: "  #{{.number}}{{.state}}{{.comments}} "
+
+segment_separators:
+    solid_left: ""
+    wire_left: ""
+    solid_right: ""
+    wire_right: ""
+
+segments:
+  - left:
+      - os
+      - user
+      - path
+      - git_status
+      - gh_pull_request
+      - git_user
+    right:
+      - time
+  - left:
+      - status
+      - duration
+    right:

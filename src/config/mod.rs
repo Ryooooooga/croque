@@ -82,6 +82,11 @@ impl Config {
         serde_yaml::from_reader(file)
     }
 
+    #[cfg(test)]
+    pub fn load_from_str(str: &str) -> Result<Config, serde_yaml::Error> {
+        serde_yaml::from_str(str)
+    }
+
     pub fn config_path() -> PathBuf {
         if let Some(path) = std::env::var_os(CROQUE_CONFIG_FILE) {
             PathBuf::from(path)
