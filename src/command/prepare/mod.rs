@@ -1,7 +1,7 @@
 use super::PrepareArgs;
 use crate::{
     command::DataSource,
-    info::{self, git::load_git_info, gh::load_gh_info},
+    info::{self, gh::load_gh_info, git::load_git_info},
 };
 
 fn prepare_git_info() -> Option<Vec<u8>> {

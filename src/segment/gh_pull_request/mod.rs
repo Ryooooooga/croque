@@ -20,7 +20,7 @@ impl GhPullRequestSegmentBuilder {
         pr.number.to_string()
     }
 
-    fn build_state<'a>(&self, config: &'a GhPullRequestConfig, pr: &PullRequest) -> Option<String> {
+    fn build_state(&self, config: &GhPullRequestConfig, pr: &PullRequest) -> Option<String> {
         let icon: &str = match (&pr.state, pr.is_draft) {
             (PullRequestState::Open, false) => &config.icons.open,
             (PullRequestState::Open, true) => &config.icons.draft,
