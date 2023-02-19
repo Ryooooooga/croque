@@ -19,7 +19,7 @@ pub struct TimeConfig {
 
 impl TimeConfig {
     fn default_format() -> String {
-        "%Y/%m/%d %H:%M:%S".to_string()
+        "%H:%M:%S".to_string()
     }
 
     fn default_utc() -> bool {
