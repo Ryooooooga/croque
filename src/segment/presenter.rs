@@ -70,7 +70,9 @@ impl<'a> Presenter<'a> {
         dir: Direction,
     ) -> usize {
         let (style, content) = if next_bg == prev_bg {
-            let style = Style::new().fg(Colour::White);
+            let style = next_bg
+                .iter()
+                .fold(Style::new().fg(Colour::White), |style, bg| style.on(*bg));
             let content = match dir {
                 Direction::Left => &self.config.segment_separators.wire_left,
                 Direction::Right => &self.config.segment_separators.wire_right,
