@@ -1,4 +1,5 @@
 mod duration;
+mod gh_pull_request;
 mod git_status;
 mod git_user;
 mod os;
@@ -9,10 +10,10 @@ mod time;
 mod user;
 
 use self::{
-    duration::DurationSegmentBuilder, git_status::GitStatusSegmentBuilder,
-    git_user::GitUserSegmentBuilder, os::OsSegmentBuilder, path::PathSegmentBuilder,
-    presenter::Presenter, status::StatusSegmentBuilder, time::TimeSegmentBuilder,
-    user::UserSegmentBuilder,
+    duration::DurationSegmentBuilder, gh_pull_request::GhPullRequestSegmentBuilder,
+    git_status::GitStatusSegmentBuilder, git_user::GitUserSegmentBuilder, os::OsSegmentBuilder,
+    path::PathSegmentBuilder, presenter::Presenter, status::StatusSegmentBuilder,
+    time::TimeSegmentBuilder, user::UserSegmentBuilder,
 };
 use crate::{
     command::SegmentArgs,
@@ -66,6 +67,7 @@ struct SegmentBuilders<'a> {
     user: UserSegmentBuilder<'a>,
     git_status: GitStatusSegmentBuilder,
     git_user: GitUserSegmentBuilder,
+    gh_pull_request: GhPullRequestSegmentBuilder,
 }
 
 impl SegmentBuilders<'_> {
@@ -79,6 +81,7 @@ impl SegmentBuilders<'_> {
             SegmentKind::User => self.user.build(ctx),
             SegmentKind::GitStatus => self.git_status.build(ctx),
             SegmentKind::GitUser => self.git_user.build(ctx),
+            SegmentKind::GhPullRequest => self.gh_pull_request.build(ctx),
         }
     }
 

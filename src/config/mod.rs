@@ -1,4 +1,5 @@
 pub mod duration;
+pub mod gh_pull_request;
 pub mod git_status;
 pub mod git_user;
 pub mod os;
@@ -9,8 +10,9 @@ pub mod time;
 pub mod user;
 
 use self::{
-    duration::DurationConfig, git_status::GitStatusConfig, git_user::GitUserConfig, os::OsConfig,
-    path::PathConfig, status::StatusConfig, time::TimeConfig, user::UserConfig,
+    duration::DurationConfig, gh_pull_request::GhPullRequestConfig, git_status::GitStatusConfig,
+    git_user::GitUserConfig, os::OsConfig, path::PathConfig, status::StatusConfig,
+    time::TimeConfig, user::UserConfig,
 };
 use serde::Deserialize;
 use std::default::Default;
@@ -42,6 +44,9 @@ pub struct Config {
     pub git_user: GitUserConfig,
 
     #[serde(default)]
+    pub gh_pull_request: GhPullRequestConfig,
+
+    #[serde(default)]
     pub segment_separators: SegmentSeparators,
 
     #[serde(default = "Config::default_segments")]
@@ -57,6 +62,7 @@ impl Config {
                     SegmentKind::User,
                     SegmentKind::Path,
                     SegmentKind::GitStatus,
+                    SegmentKind::GhPullRequest,
                     SegmentKind::GitUser,
                 ],
                 right: vec![SegmentKind::Time],
@@ -80,6 +86,7 @@ impl Default for Config {
             time: Default::default(),
             git_status: Default::default(),
             git_user: Default::default(),
+            gh_pull_request: Default::default(),
             segment_separators: Default::default(),
             segments: Self::default_segments(),
         }
@@ -150,4 +157,5 @@ pub enum SegmentKind {
     User,
     GitStatus,
     GitUser,
+    GhPullRequest,
 }

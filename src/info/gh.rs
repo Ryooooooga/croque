@@ -10,14 +10,22 @@ pub struct GhInfo {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PullRequest {
     pub number: i32,
+    pub state: PullRequestState,
     pub comments: i32,
-    pub is_closed: bool,
     pub is_draft: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum PullRequestState {
+    Open,
+    Closed,
+    Merged,
 }
 
 fn load_pull_request() -> Option<PullRequest> {
     let output = Command::new("gh")
-        .args(&["pr", "view", "--json=number,comments,closed,isDraft"])
+        .args(["pr", "view", "--json=number,state,comments,isDraft"])
         .output()
         .ok()?;
 
@@ -31,22 +39,22 @@ fn load_pull_request() -> Option<PullRequest> {
     #[derive(Debug, Deserialize)]
     struct PrResult {
         number: i32,
+        state: PullRequestState,
         comments: Vec<PrComment>,
-        closed: bool,
         #[serde(rename = "isDraft")]
         is_draft: bool,
     }
 
     let result: PrResult = serde_json::from_slice(&output.stdout).ok()?;
     let number = result.number;
+    let state = result.state;
     let comments = result.comments.len() as i32;
-    let is_closed = result.closed;
     let is_draft = result.is_draft;
 
     Some(PullRequest {
         number,
+        state,
         comments,
-        is_closed,
         is_draft,
     })
 }
