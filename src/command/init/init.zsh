@@ -50,12 +50,12 @@ croque::prepare() {
   if (( ${+ASYNC_VERSION} )); then
     async_init
     croque::prepare-git-async
-    croque::prepare-gh-async
-    croque::prepare-glab-async
+    (( ${+commands[gh]} )) && croque::prepare-gh-async
+    (( ${+commands[glab]} )) && croque::prepare-glab-async
   else
     __croque_git_info="$(croque::prepare-git)"
-    __croque_gh_info="$(croque::prepare-gh)"
-    __croque_glab_info="$(croque::prepare-glab)"
+    (( ${+commands[gh]} )) && __croque_gh_info="$(croque::prepare-gh)"
+    (( ${+commands[glab]} )) && __croque_glab_info="$(croque::prepare-glab)"
   fi
 }
 
