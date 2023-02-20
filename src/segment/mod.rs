@@ -2,6 +2,7 @@ mod duration;
 mod gh_pull_request;
 mod git_status;
 mod git_user;
+mod glab_merge_request;
 mod os;
 mod path;
 mod presenter;
@@ -11,14 +12,15 @@ mod user;
 
 use self::{
     duration::DurationSegmentBuilder, gh_pull_request::GhPullRequestSegmentBuilder,
-    git_status::GitStatusSegmentBuilder, git_user::GitUserSegmentBuilder, os::OsSegmentBuilder,
+    git_status::GitStatusSegmentBuilder, git_user::GitUserSegmentBuilder,
+    glab_merge_request::GlabMergeRequestSegmentBuilder, os::OsSegmentBuilder,
     path::PathSegmentBuilder, presenter::Presenter, status::StatusSegmentBuilder,
     time::TimeSegmentBuilder, user::UserSegmentBuilder,
 };
 use crate::{
     command::SegmentArgs,
     config::{Config, SegmentKind},
-    info::{gh::GhInfo, git::GitInfo},
+    info::{gh::GhInfo, git::GitInfo, glab::GlabInfo},
 };
 use ansi_term::Style;
 use std::io;
@@ -35,6 +37,7 @@ pub struct Context<'a> {
     args: &'a SegmentArgs,
     git_info: Option<&'a GitInfo>,
     gh_info: Option<&'a GhInfo>,
+    glab_info: Option<&'a GlabInfo>,
 }
 
 impl<'a> Context<'a> {
@@ -43,12 +46,14 @@ impl<'a> Context<'a> {
         args: &'a SegmentArgs,
         git_info: Option<&'a GitInfo>,
         gh_info: Option<&'a GhInfo>,
+        glab_info: Option<&'a GlabInfo>,
     ) -> Self {
         Self {
             config,
             args,
             git_info,
             gh_info,
+            glab_info,
         }
     }
 }
@@ -68,6 +73,7 @@ struct SegmentBuilders<'a> {
     git_status: GitStatusSegmentBuilder,
     git_user: GitUserSegmentBuilder,
     gh_pull_request: GhPullRequestSegmentBuilder,
+    glab_merge_request: GlabMergeRequestSegmentBuilder,
 }
 
 impl SegmentBuilders<'_> {
@@ -82,6 +88,7 @@ impl SegmentBuilders<'_> {
             SegmentKind::GitStatus => self.git_status.build(ctx),
             SegmentKind::GitUser => self.git_user.build(ctx),
             SegmentKind::GhPullRequest => self.gh_pull_request.build(ctx),
+            SegmentKind::GlabMergeRequest => self.glab_merge_request.build(ctx),
         }
     }
 

@@ -30,20 +30,39 @@ croque::prepare-gh-async() {
   async_job croque_async_gh_worker croque::prepare-gh
 }
 
+croque::prepare-glab() {
+  croque prepare glab
+}
+
+croque::prepare-glab-async::callback() {
+  __croque_glab_info="$3"
+  zle reset-prompt
+}
+
+croque::prepare-glab-async() {
+  async_stop_worker croque_async_glab_worker
+  async_start_worker croque_async_glab_worker -n
+  async_register_callback croque_async_glab_worker croque::prepare-glab-async::callback
+  async_job croque_async_glab_worker croque::prepare-glab
+}
+
 croque::prepare() {
   if (( ${+ASYNC_VERSION} )); then
     async_init
     croque::prepare-git-async
     croque::prepare-gh-async
+    croque::prepare-glab-async
   else
     __croque_git_info="$(croque::prepare-git)"
     __croque_gh_info="$(croque::prepare-gh)"
+    __croque_glab_info="$(croque::prepare-glab)"
   fi
 }
 
 croque::chpwd() {
   unset __croque_git_info
   unset __croque_gh_info
+  unset __croque_glab_info
 }
 
 croque::preexec() {
@@ -61,11 +80,11 @@ croque::precmd() {
 }
 
 croque::prompt() {
-  croque prompt --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" zsh
+  croque prompt --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" --data.glab="$__croque_glab_info" zsh
 }
 
 croque::rprompt() {
-  croque prompt --right --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" zsh
+  croque prompt --right --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" --data.glab="$__croque_glab_info" zsh
 }
 
 autoload -Uz add-zsh-hook

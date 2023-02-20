@@ -150,6 +150,35 @@ gh_pull_request:
       decoration: []
   content: "  #{{.number}}{{.state}}{{.comments}} "
 
+glab_merge_request:
+  icons:
+    open: ""
+    draft: ""
+    closed: ""
+    merged: ""
+    comment: " "
+  open:
+    style:
+      foreground: black
+      background: 214
+      decoration: []
+  draft:
+    style:
+      foreground: black
+      background: 249
+      decoration: []
+  closed:
+    style:
+      foreground: black
+      background: 196
+      decoration: []
+  merged:
+    style:
+      foreground: black
+      background: 141
+      decoration: []
+  content: "  !{{.number}}{{.state}}{{.comments}} "
+
 segment_separators:
     solid_left: ""
     wire_left: ""
@@ -163,6 +192,7 @@ segments:
       - path
       - git_status
       - gh_pull_request
+      - glab_merge_request
       - git_user
     right:
       - time

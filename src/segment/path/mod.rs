@@ -83,9 +83,10 @@ mod tests {
             width: 100,
             encoded_git_info: None,
             encoded_gh_info: None,
+            encoded_glab_info: None,
             shell: Shell::Zsh,
         };
-        let ctx = Context::new(config, args, None, None);
+        let ctx = Context::new(config, args, None, None, None);
 
         struct Scenario<'a> {
             testname: &'a str,

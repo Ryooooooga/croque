@@ -148,10 +148,11 @@ mod tests {
                 width: 100,
                 encoded_git_info: None,
                 encoded_gh_info: None,
+                encoded_glab_info: None,
                 shell: crate::shell::Shell::Zsh,
             };
 
-            let ctx = &Context::new(&config, &args, None, None);
+            let ctx = &Context::new(&config, &args, None, None, None);
 
             let target = DurationSegmentBuilder::default();
             let actual = target.build(ctx);

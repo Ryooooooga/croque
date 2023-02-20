@@ -2,6 +2,7 @@ pub mod duration;
 pub mod gh_pull_request;
 pub mod git_status;
 pub mod git_user;
+pub mod glab_merge_request;
 pub mod os;
 pub mod path;
 pub mod status;
@@ -11,8 +12,8 @@ pub mod user;
 
 use self::{
     duration::DurationConfig, gh_pull_request::GhPullRequestConfig, git_status::GitStatusConfig,
-    git_user::GitUserConfig, os::OsConfig, path::PathConfig, status::StatusConfig,
-    time::TimeConfig, user::UserConfig,
+    git_user::GitUserConfig, glab_merge_request::GlabMergeRequestConfig, os::OsConfig,
+    path::PathConfig, status::StatusConfig, time::TimeConfig, user::UserConfig,
 };
 use serde::Deserialize;
 use std::{
@@ -52,6 +53,9 @@ pub struct Config {
 
     #[serde(default)]
     pub gh_pull_request: GhPullRequestConfig,
+
+    #[serde(default)]
+    pub glab_merge_request: GlabMergeRequestConfig,
 
     #[serde(default)]
     pub segment_separators: SegmentSeparators,
@@ -112,6 +116,7 @@ impl Config {
                     SegmentKind::Path,
                     SegmentKind::GitStatus,
                     SegmentKind::GhPullRequest,
+                    SegmentKind::GlabMergeRequest,
                     SegmentKind::GitUser,
                 ],
                 right: vec![SegmentKind::Time],
@@ -136,6 +141,7 @@ impl Default for Config {
             git_status: Default::default(),
             git_user: Default::default(),
             gh_pull_request: Default::default(),
+            glab_merge_request: Default::default(),
             segment_separators: Default::default(),
             segments: Self::default_segments(),
         }
@@ -207,4 +213,5 @@ pub enum SegmentKind {
     GitStatus,
     GitUser,
     GhPullRequest,
+    GlabMergeRequest,
 }

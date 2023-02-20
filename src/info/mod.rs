@@ -2,6 +2,7 @@ use base64::Engine;
 
 pub mod gh;
 pub mod git;
+pub mod glab;
 
 fn base64_engine() -> impl Engine {
     base64::engine::general_purpose::GeneralPurpose::new(
