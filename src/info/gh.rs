@@ -25,7 +25,7 @@ pub enum PullRequestState {
 
 fn load_pull_request() -> Option<PullRequest> {
     let output = Command::new("gh")
-        .args(["pr", "view", "--json=number,state,comments,isDraft"])
+        .args(["pr", "view", "--json=number,state,comments,reviews,isDraft"])
         .output()
         .ok()?;
 
@@ -37,10 +37,14 @@ fn load_pull_request() -> Option<PullRequest> {
     struct PrComment {}
 
     #[derive(Debug, Deserialize)]
+    struct PrReview {}
+
+    #[derive(Debug, Deserialize)]
     struct PrResult {
         number: i32,
         state: PullRequestState,
         comments: Vec<PrComment>,
+        reviews: Vec<PrReview>,
         #[serde(rename = "isDraft")]
         is_draft: bool,
     }
@@ -48,7 +52,7 @@ fn load_pull_request() -> Option<PullRequest> {
     let result: PrResult = serde_json::from_slice(&output.stdout).ok()?;
     let number = result.number;
     let state = result.state;
-    let comments = result.comments.len() as i32;
+    let comments = (result.comments.len() + result.reviews.len()) as i32;
     let is_draft = result.is_draft;
 
     Some(PullRequest {
