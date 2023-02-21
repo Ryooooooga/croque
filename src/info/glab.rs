@@ -1,6 +1,8 @@
-use std::process::Command;
-
 use serde::{Deserialize, Serialize};
+use std::{
+    io::Write,
+    process::{Command, Stdio},
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlabInfo {
@@ -23,7 +25,18 @@ pub enum MergeRequestState {
 }
 
 fn load_merge_request() -> Option<MergeRequest> {
-    let output = Command::new("glab").args(["mr", "view"]).output().ok()?;
+    let mut process = Command::new("glab")
+        .args(["mr", "view"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .ok()?;
+
+    if let Some(mut stdin) = process.stdin.take() {
+        let _ = stdin.write_all(b"\n");
+    }
+
+    let output = process.wait_with_output().ok()?;
 
     if !output.status.success() {
         return None;
