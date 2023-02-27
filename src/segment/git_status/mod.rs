@@ -92,13 +92,13 @@ impl GitStatusSegmentBuilder {
     }
 
     fn build_upstream_status(upstream: &UpstreamStatus, icons: &GitStatusIcons) -> Option<String> {
-        let ahead_icon = &icons.ahead;
         let behind_icon = &icons.behind;
-        match (upstream.ahead, upstream.behind) {
+        let ahead_icon = &icons.ahead;
+        match (upstream.behind, upstream.ahead) {
             (0, 0) => None,
-            (ahead, 0) => Some(format!(" {ahead_icon}{ahead}")),
-            (0, behind) => Some(format!(" {behind_icon}{behind}")),
-            (ahead, behind) => Some(format!(" {ahead_icon}{ahead}{behind_icon}{behind}")),
+            (behind, 0) => Some(format!(" {behind_icon}{behind}")),
+            (0, ahead) => Some(format!(" {ahead_icon}{ahead}")),
+            (behind, ahead) => Some(format!(" {behind_icon}{behind}{ahead_icon}{ahead}")),
         }
     }
 }
