@@ -117,6 +117,22 @@ pub fn shrink_path(
             break;
         }
 
+        let parent = match path.parent() {
+            Some(parent) => parent,
+            None => {
+                #[cfg(target_os = "windows")]
+                let root = path.to_string_lossy();
+                #[cfg(not(target_os = "windows"))]
+                let root = if reversed_path_segments.is_empty() {
+                    path.to_string_lossy()
+                } else {
+                    Cow::from("")
+                };
+                reversed_path_segments.push(root.to_string());
+                break;
+            }
+        };
+
         let is_first = reversed_path_segments.is_empty();
         let is_project_root = Some(path) == project_root;
         let should_shrink = shrink_enabled && !is_first && !is_project_root;
@@ -130,10 +146,7 @@ pub fn shrink_path(
 
         reversed_path_segments.push(shrinked_basename.to_string());
 
-        path = match path.parent() {
-            Some(parent) => parent,
-            None => break,
-        };
+        path = parent;
     }
 
     let mut path_segments = reversed_path_segments;
@@ -230,5 +243,25 @@ fn test_shrink_path() {
             2
         ),
         "/a"
+    );
+
+    assert_eq!(
+        &shrink_path(&PathBuf::from("/home"), home, None, aliases, true, 1),
+        "/home"
+    );
+
+    assert_eq!(
+        &shrink_path(&PathBuf::from("/home/"), home, None, aliases, true, 1),
+        "/home"
+    );
+
+    assert_eq!(
+        &shrink_path(&PathBuf::from("/home/nyan"), home, None, aliases, true, 1),
+        "/h/nyan"
+    );
+
+    assert_eq!(
+        &shrink_path(&PathBuf::from("/"), home, None, aliases, true, 1),
+        "/"
     );
 }
