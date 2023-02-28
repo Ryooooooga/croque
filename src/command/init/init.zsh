@@ -66,11 +66,12 @@ croque::chpwd() {
 }
 
 croque::preexec() {
+  unset __croque_exit_status_overwrite
   __croque_start="$EPOCHREALTIME"
 }
 
 croque::precmd() {
-  __croque_exit_status="$?"
+  __croque_exit_status="${__croque_exit_status_overwrite:-$?}"
   __croque_jobs="$#jobstates"
   local end="$EPOCHREALTIME"
   __croque_duration="$(($end - ${__croque_start:-$end}))"
@@ -86,6 +87,14 @@ croque::prompt() {
 croque::rprompt() {
   croque prompt --right --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" --data.glab="$__croque_glab_info" zsh
 }
+
+croque::clear-screen() {
+  __croque_exit_status_overwrite=0
+  croque::precmd
+  zle .clear-screen
+}
+
+zle -N clear-screen croque::clear-screen
 
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd croque::chpwd
