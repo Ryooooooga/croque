@@ -1,6 +1,6 @@
 [package]
 name = "croque"
-version = "0.1.3"
+version = "0.2.0"
 authors = ['Ryooooooga <eial5q265e5@gmail.com>']
 description = "Fast and customizable shell prompt"
 license = "MIT"
