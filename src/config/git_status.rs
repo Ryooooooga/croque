@@ -18,6 +18,9 @@ pub struct GitStatusConfig {
     #[serde(default)]
     pub conflicted: ConflictedStatusConfig,
 
+    #[serde(default = "GitStatusConfig::default_remotes")]
+    pub remotes: Vec<RemoteConfig>,
+
     #[serde(default = "GitStatusConfig::default_display_master")]
     pub display_master: bool,
 
@@ -29,6 +32,19 @@ pub struct GitStatusConfig {
 }
 
 impl GitStatusConfig {
+    fn default_remotes() -> Vec<RemoteConfig> {
+        vec![
+            RemoteConfig {
+                pattern: "gitcom.com".to_string(),
+                icon: " ".to_string(),
+            },
+            RemoteConfig {
+                pattern: "".to_string(),
+                icon: " ".to_string(),
+            },
+        ]
+    }
+
     fn default_display_master() -> bool {
         true
     }
@@ -50,6 +66,7 @@ impl Default for GitStatusConfig {
             unstaged: Default::default(),
             staged: Default::default(),
             conflicted: Default::default(),
+            remotes: Self::default_remotes(),
             display_master: Self::default_display_master(),
             commit_hash_length: Self::default_commit_hash_length(),
             content: Self::default_content(),
@@ -234,4 +251,10 @@ impl Default for ConflictedStatusConfig {
             style: Self::default_style(),
         }
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RemoteConfig {
+    pub pattern: String,
+    pub icon: String,
 }

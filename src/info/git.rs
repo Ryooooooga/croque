@@ -8,6 +8,7 @@ pub struct GitInfo {
     pub head: Head,
     pub working_tree: WorkingTreeStatus,
     pub upstream: Option<UpstreamStatus>,
+    pub remotes: Vec<RemoteStatus>,
     pub user: Option<String>,
 }
 
@@ -71,6 +72,11 @@ impl WorkingTreeStatus {
 pub struct UpstreamStatus {
     pub ahead: u32,
     pub behind: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RemoteStatus {
+    pub url: String,
 }
 
 fn head_status(repo: &Repository, head_ref: &Option<Reference>) -> Head {
@@ -179,6 +185,21 @@ fn upstream_status(repo: &Repository, head_ref: &Reference) -> Option<UpstreamSt
     })
 }
 
+fn remote_statuses(repo: &Repository) -> Vec<RemoteStatus> {
+    let remote_names = match repo.remotes() {
+        Ok(remotes) => remotes,
+        Err(_) => return Vec::new(),
+    };
+
+    remote_names
+        .iter()
+        .flatten()
+        .flat_map(|name| repo.find_remote(name).ok())
+        .flat_map(|remote| remote.url().map(str::to_string))
+        .map(|url| RemoteStatus { url })
+        .collect()
+}
+
 fn user_name(repo: &Repository) -> Option<String> {
     let config = repo.config().ok()?;
     config.get_string("user.name").ok()
@@ -197,6 +218,7 @@ pub fn load_git_info() -> Option<GitInfo> {
     let upstream = head_ref
         .as_ref()
         .and_then(|head_ref| upstream_status(&repo, head_ref));
+    let remotes = remote_statuses(&repo);
     let user = user_name(&repo);
 
     Some(GitInfo {
@@ -204,6 +226,7 @@ pub fn load_git_info() -> Option<GitInfo> {
         head,
         working_tree,
         upstream,
+        remotes,
         user,
     })
 }

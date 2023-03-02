@@ -110,6 +110,11 @@ git_status:
       foreground: black
       background: red
       decoration: []
+  remotes:
+    - pattern: github.com
+      icon: " "
+    - pattern: ""
+      icon: " "
   display_master: true
   commit_hash_length: 7
   content: " {{.remote}}{{.head}}{{.working_tree}}{{.upstream}} "

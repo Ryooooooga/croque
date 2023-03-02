@@ -1,6 +1,6 @@
 use crate::{
-    config::git_status::GitStatusIcons,
-    info::git::{Head, UpstreamStatus, WorkingTreeStatus},
+    config::git_status::{GitStatusIcons, RemoteConfig},
+    info::git::{Head, RemoteStatus, UpstreamStatus, WorkingTreeStatus},
 };
 use aho_corasick::AhoCorasick;
 use std::borrow::Cow;
@@ -30,6 +30,31 @@ impl GitStatusSegmentBuilder {
         } else {
             hash
         }
+    }
+
+    fn build_remote_status(
+        remotes: &[RemoteStatus],
+        remote_configs: &[RemoteConfig],
+    ) -> Option<String> {
+        if remotes.is_empty() {
+            return None;
+        }
+
+        let mut result = String::new();
+
+        for remote in remotes {
+            let matched = remote_configs
+                .iter()
+                .find(|c| remote.url.contains(&c.pattern));
+
+            if let Some(matched) = matched {
+                result += &matched.icon;
+            }
+        }
+
+        result.push(' ');
+
+        Some(result)
     }
 
     fn build_head_status<'a>(
@@ -122,6 +147,9 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
         let config = &ctx.config.git_status;
         let git_info = ctx.git_info?;
 
+        let remote = Self::build_remote_status(&git_info.remotes, &config.remotes);
+        let remote = remote.as_deref().unwrap_or_default();
+
         let head = Self::build_head_status(
             &git_info.head,
             &config.icons,
@@ -139,7 +167,7 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
 
         let content = self.replacer.replace_all(
             &config.content,
-            &["", head.as_ref(), &working_tree, &upstream],
+            &[remote, head.as_ref(), &working_tree, &upstream],
         );
 
         let style = if git_info.working_tree.has_conflict() {
