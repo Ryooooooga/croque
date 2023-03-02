@@ -1,6 +1,6 @@
 use crate::{
     config::git_status::GitStatusIcons,
-    info::git::{Head, UpstreamStatus, WorkspaceStatus},
+    info::git::{Head, UpstreamStatus, WorkingTreeStatus},
 };
 use aho_corasick::AhoCorasick;
 use std::borrow::Cow;
@@ -15,7 +15,12 @@ pub struct GitStatusSegmentBuilder {
 
 impl GitStatusSegmentBuilder {
     pub fn new() -> Self {
-        let replacer = AhoCorasick::new(["{{.head}}", "{{.workspace}}", "{{.remote}}"]);
+        let replacer = AhoCorasick::new([
+            "{{.remote}}",
+            "{{.head}}",
+            "{{.working_tree}}",
+            "{{.upstream}}",
+        ]);
         Self { replacer }
     }
 
@@ -64,23 +69,26 @@ impl GitStatusSegmentBuilder {
         }
     }
 
-    fn build_workspace_status(workspace: &WorkspaceStatus, icons: &GitStatusIcons) -> String {
+    fn build_working_tree_status(
+        working_tree: &WorkingTreeStatus,
+        icons: &GitStatusIcons,
+    ) -> String {
         let mut status = String::new();
         status.reserve(16);
 
-        if workspace.has_new() {
+        if working_tree.has_new() {
             let _ = write!(status, "{}", icons.added);
         }
-        if workspace.has_deleted() {
+        if working_tree.has_deleted() {
             let _ = write!(status, "{}", icons.deleted);
         }
-        if workspace.has_modified() {
+        if working_tree.has_modified() {
             let _ = write!(status, "{}", icons.modified);
         }
-        if workspace.has_renamed() {
+        if working_tree.has_renamed() {
             let _ = write!(status, "{}", icons.renamed);
         }
-        if workspace.has_conflict() {
+        if working_tree.has_conflict() {
             let _ = write!(status, "{}", icons.conflicted);
         }
 
@@ -121,7 +129,7 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
             config.commit_hash_length,
         );
 
-        let workspace = Self::build_workspace_status(&git_info.workspace, &config.icons);
+        let working_tree = Self::build_working_tree_status(&git_info.working_tree, &config.icons);
 
         let upstream = git_info
             .upstream
@@ -129,15 +137,16 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
             .and_then(|upstream| Self::build_upstream_status(upstream, &config.icons))
             .unwrap_or_default();
 
-        let content = self
-            .replacer
-            .replace_all(&config.content, &[head.as_ref(), &workspace, &upstream]);
+        let content = self.replacer.replace_all(
+            &config.content,
+            &["", head.as_ref(), &working_tree, &upstream],
+        );
 
-        let style = if git_info.workspace.has_conflict() {
+        let style = if git_info.working_tree.has_conflict() {
             &config.conflicted.style
-        } else if git_info.workspace.has_unstaged_changes() {
+        } else if git_info.working_tree.has_unstaged_changes() {
             &config.unstaged.style
-        } else if git_info.workspace.has_staged_changes() {
+        } else if git_info.working_tree.has_staged_changes() {
             &config.staged.style
         } else {
             &config.clean.style

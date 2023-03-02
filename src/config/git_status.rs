@@ -38,7 +38,7 @@ impl GitStatusConfig {
     }
 
     fn default_content() -> String {
-        " {{.head}}{{.workspace}}{{.remote}} ".to_string()
+        " {{.remote}}{{.head}}{{.working_tree}}{{.upstream}} ".to_string()
     }
 }
 

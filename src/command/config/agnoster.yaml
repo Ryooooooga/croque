@@ -112,7 +112,7 @@ git_status:
       decoration: []
   display_master: true
   commit_hash_length: 7
-  content: " {{.head}}{{.workspace}}{{.remote}} "
+  content: " {{.remote}}{{.head}}{{.working_tree}}{{.upstream}} "
 
 git_user:
   style:

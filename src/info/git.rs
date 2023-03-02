@@ -6,7 +6,7 @@ use std::path::PathBuf;
 pub struct GitInfo {
     pub workdir: Option<PathBuf>,
     pub head: Head,
-    pub workspace: WorkspaceStatus,
+    pub working_tree: WorkingTreeStatus,
     pub upstream: Option<UpstreamStatus>,
     pub user: Option<String>,
 }
@@ -19,7 +19,7 @@ pub enum Head {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct WorkspaceStatus {
+pub struct WorkingTreeStatus {
     unstaged_new: u32,
     unstaged_deleted: u32,
     unstaged_changed: u32,
@@ -31,7 +31,7 @@ pub struct WorkspaceStatus {
     conflicted: u32,
 }
 
-impl WorkspaceStatus {
+impl WorkingTreeStatus {
     pub fn has_new(&self) -> bool {
         self.unstaged_new > 0 || self.staged_new > 0
     }
@@ -104,7 +104,7 @@ fn head_status(repo: &Repository, head_ref: &Option<Reference>) -> Head {
     Head::Commit(oid.to_string())
 }
 
-fn workspace_status(repo: &Repository) -> WorkspaceStatus {
+fn working_tree_status(repo: &Repository) -> WorkingTreeStatus {
     let mut status_options = StatusOptions::new();
     status_options
         .include_untracked(true)
@@ -112,7 +112,7 @@ fn workspace_status(repo: &Repository) -> WorkspaceStatus {
         .renames_index_to_workdir(true)
         .renames_from_rewrites(true);
 
-    let mut status = WorkspaceStatus {
+    let mut status = WorkingTreeStatus {
         unstaged_new: 0,
         unstaged_deleted: 0,
         unstaged_changed: 0,
@@ -193,7 +193,7 @@ pub fn load_git_info() -> Option<GitInfo> {
     let head_ref = repo.head().ok();
 
     let head = head_status(&repo, &head_ref);
-    let workspace = workspace_status(&repo);
+    let working_tree = working_tree_status(&repo);
     let upstream = head_ref
         .as_ref()
         .and_then(|head_ref| upstream_status(&repo, head_ref));
@@ -202,7 +202,7 @@ pub fn load_git_info() -> Option<GitInfo> {
     Some(GitInfo {
         workdir,
         head,
-        workspace,
+        working_tree,
         upstream,
         user,
     })
