@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: rustup component add clippy rustfmt
         run: rustup component add clippy rustfmt
@@ -48,6 +50,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: true
+
 
       - name: rust-toolchain
         uses: actions-rs/toolchain@v1
@@ -93,6 +98,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
 
       - name: rust-toolchain
@@ -228,6 +234,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - uses: katyo/publish-crates@v1
         with:
