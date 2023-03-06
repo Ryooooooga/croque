@@ -33,6 +33,9 @@ pub enum Subcommand {
 
 #[derive(Debug, clap::Args)]
 pub struct InitArgs {
+    #[arg(long, help = "Do not bundle zsh-async (zsh only)")]
+    pub without_async: bool,
+
     #[arg()]
     pub shell: Shell,
 }

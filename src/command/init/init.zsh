@@ -73,8 +73,8 @@ zle -N clear-screen croque::clear-screen
 
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd croque::chpwd
-add-zsh-hook precmd croque::precmd
 add-zsh-hook preexec croque::preexec
+add-zsh-hook precmd croque::precmd
 
 setopt prompt_subst
 PROMPT='$(croque::prompt)'
