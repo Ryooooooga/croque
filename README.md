@@ -37,7 +37,15 @@ eval "$(croque init bash)"
 eval "$(croque init zsh)"
 ```
 
-optional requirements: [zsh-async](https://github.com/mafredri/zsh-async)
+#### Using [Zinit](https://github.com/zdharma-continuum/zinit)
+
+```zsh
+# .zshrc
+zinit light-mode from'gh-r' as'program' for \
+    atclone'./croque init zsh >croque.zsh; zcompile croque.zsh' atpull'%atclone' \
+    src'croque.zsh' \
+    @'Ryooooooga/croque'
+```
 
 ### Fish
 
