@@ -35,7 +35,7 @@ impl GitStatusConfig {
     fn default_remotes() -> Vec<RemoteConfig> {
         vec![
             RemoteConfig {
-                pattern: "gitcom.com".to_string(),
+                pattern: "github.com".to_string(),
                 icon: " ".to_string(),
             },
             RemoteConfig {
