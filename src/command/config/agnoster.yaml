@@ -46,16 +46,16 @@ path:
 
 status:
   icons:
-    succeeded: "✓"
-    failed: ""
+    success: "✓"
+    error: ""
     root: ""
     jobs: ""
-  succeeded:
+  success:
     style:
       foreground: green
       background: white
       decoration: []
-  failed:
+  error:
     style:
       foreground: white
       background: red

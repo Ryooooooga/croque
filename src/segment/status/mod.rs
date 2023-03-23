@@ -37,11 +37,11 @@ impl SegmentBuilder for StatusSegmentBuilder<'_> {
         let args = &ctx.args;
 
         let exit_status = if args.exit_status == 0 {
-            Cow::from(&icons.succeeded)
-        } else if config.failed.display_exit_code {
-            Cow::from(format!("{} {}", icons.failed, args.exit_status))
+            Cow::from(&icons.success)
+        } else if config.error.display_exit_code {
+            Cow::from(format!("{} {}", icons.error, args.exit_status))
         } else {
-            Cow::from(&icons.failed)
+            Cow::from(&icons.error)
         };
 
         let root = if (self.is_root)() {
@@ -57,9 +57,9 @@ impl SegmentBuilder for StatusSegmentBuilder<'_> {
         };
 
         let style = if args.exit_status == 0 {
-            &config.succeeded.style
+            &config.success.style
         } else {
-            &config.failed.style
+            &config.error.style
         };
 
         let content = self
@@ -99,7 +99,7 @@ mod tests {
                 display_exit_code: true,
                 expected: Some(Segment {
                     content: " ✓ ".to_string(),
-                    style: config.status.succeeded.style.to_ansi(),
+                    style: config.status.success.style.to_ansi(),
                 }),
             },
             Scenario {
@@ -109,7 +109,7 @@ mod tests {
                 display_exit_code: true,
                 expected: Some(Segment {
                     content: "  1 ".to_string(),
-                    style: config.status.failed.style.to_ansi(),
+                    style: config.status.error.style.to_ansi(),
                 }),
             },
             Scenario {
@@ -119,7 +119,7 @@ mod tests {
                 display_exit_code: false,
                 expected: Some(Segment {
                     content: "  ".to_string(),
-                    style: config.status.failed.style.to_ansi(),
+                    style: config.status.error.style.to_ansi(),
                 }),
             },
             Scenario {
@@ -129,13 +129,13 @@ mod tests {
                 display_exit_code: true,
                 expected: Some(Segment {
                     content: "  130   ".to_string(),
-                    style: config.status.failed.style.to_ansi(),
+                    style: config.status.error.style.to_ansi(),
                 }),
             },
         ];
 
         for s in scenarios.iter() {
-            config.status.failed.display_exit_code = s.display_exit_code;
+            config.status.error.display_exit_code = s.display_exit_code;
             let args = &SegmentArgs {
                 right: false,
                 exit_status: s.exit_status,

@@ -7,10 +7,10 @@ pub struct StatusConfig {
     pub icons: StatusIcons,
 
     #[serde(default)]
-    pub succeeded: SucceededStatusConfig,
+    pub success: SuccessStatusConfig,
 
     #[serde(default)]
-    pub failed: FailedStatusConfig,
+    pub error: ErrorStatusConfig,
 
     #[serde(default = "StatusConfig::default_content")]
     pub content: String,
@@ -26,8 +26,8 @@ impl Default for StatusConfig {
     fn default() -> Self {
         Self {
             icons: Default::default(),
-            succeeded: Default::default(),
-            failed: Default::default(),
+            success: Default::default(),
+            error: Default::default(),
             content: Self::default_content(),
         }
     }
@@ -35,11 +35,11 @@ impl Default for StatusConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct StatusIcons {
-    #[serde(default = "StatusIcons::default_succeeded")]
-    pub succeeded: String,
+    #[serde(default = "StatusIcons::default_success")]
+    pub success: String,
 
-    #[serde(default = "StatusIcons::default_failed")]
-    pub failed: String,
+    #[serde(default = "StatusIcons::default_error")]
+    pub error: String,
 
     #[serde(default = "StatusIcons::default_root")]
     pub root: String,
@@ -49,10 +49,10 @@ pub struct StatusIcons {
 }
 
 impl StatusIcons {
-    fn default_succeeded() -> String {
+    fn default_success() -> String {
         "✓".to_string()
     }
-    fn default_failed() -> String {
+    fn default_error() -> String {
         "".to_string()
     }
     fn default_root() -> String {
@@ -66,8 +66,8 @@ impl StatusIcons {
 impl Default for StatusIcons {
     fn default() -> Self {
         Self {
-            succeeded: Self::default_succeeded(),
-            failed: Self::default_failed(),
+            success: Self::default_success(),
+            error: Self::default_error(),
             root: Self::default_root(),
             jobs: Self::default_jobs(),
         }
@@ -75,12 +75,12 @@ impl Default for StatusIcons {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct SucceededStatusConfig {
-    #[serde(default = "SucceededStatusConfig::default_style")]
+pub struct SuccessStatusConfig {
+    #[serde(default = "SuccessStatusConfig::default_style")]
     pub style: Style,
 }
 
-impl SucceededStatusConfig {
+impl SuccessStatusConfig {
     fn default_style() -> Style {
         Style {
             foreground: Color::Named(NamedColor::Green),
@@ -90,7 +90,7 @@ impl SucceededStatusConfig {
     }
 }
 
-impl Default for SucceededStatusConfig {
+impl Default for SuccessStatusConfig {
     fn default() -> Self {
         Self {
             style: Self::default_style(),
@@ -99,15 +99,15 @@ impl Default for SucceededStatusConfig {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct FailedStatusConfig {
-    #[serde(default = "FailedStatusConfig::default_style")]
+pub struct ErrorStatusConfig {
+    #[serde(default = "ErrorStatusConfig::default_style")]
     pub style: Style,
 
-    #[serde(default = "FailedStatusConfig::default_display_exit_code")]
+    #[serde(default = "ErrorStatusConfig::default_display_exit_code")]
     pub display_exit_code: bool,
 }
 
-impl FailedStatusConfig {
+impl ErrorStatusConfig {
     fn default_style() -> Style {
         Style {
             foreground: Color::Named(NamedColor::White),
@@ -121,7 +121,7 @@ impl FailedStatusConfig {
     }
 }
 
-impl Default for FailedStatusConfig {
+impl Default for ErrorStatusConfig {
     fn default() -> Self {
         Self {
             style: Self::default_style(),
