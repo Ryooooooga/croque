@@ -35,9 +35,16 @@ impl Default for StatusConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct StatusIcons {
+    #[serde(default = "StatusIcons::default_succeeded")]
     pub succeeded: String,
+
+    #[serde(default = "StatusIcons::default_failed")]
     pub failed: String,
+
+    #[serde(default = "StatusIcons::default_root")]
     pub root: String,
+
+    #[serde(default = "StatusIcons::default_jobs")]
     pub jobs: String,
 }
 
