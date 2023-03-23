@@ -60,6 +60,7 @@ status:
       foreground: white
       background: red
       decoration: []
+    display_exit_code: true
   content: " {{.exit_status}}{{.root}}{{.jobs}} "
 
 duration:
