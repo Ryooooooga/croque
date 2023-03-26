@@ -5,6 +5,13 @@
 
 Fast and customizable shell prompt.
 
+![](docs/screenshot.png)
+
+## Optional Requirements
+
+- [gh](https://github.com/cli/cli)
+- [glab](https://docs.gitlab.com/ee/integration/glab)
+
 ## Installation
 
 ### From source
