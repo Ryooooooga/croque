@@ -21,7 +21,7 @@ os:
 user:
   style:
     foreground: white
-    background: 8
+    background: dark_gray
     decoration: []
   content: " {{.user}}@{{.host}} "
 
@@ -74,7 +74,7 @@ time:
   format: "%H:%M:%S" # https://docs.rs/chrono/0.4.23/chrono/format/strftime/index.html
   utc: false
   style:
-    foreground: 8
+    foreground: dark_gray
     background: white
     decoration: []
   content: "  {{.time}} "

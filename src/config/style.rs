@@ -74,13 +74,23 @@ impl Color {
             Color::Named(name) => match name {
                 NamedColor::Default => None,
                 NamedColor::Black => Some(ANSIColor::Black),
+                NamedColor::DarkGray => Some(ANSIColor::DarkGray),
                 NamedColor::Red => Some(ANSIColor::Red),
+                NamedColor::LightRed => Some(ANSIColor::LightRed),
                 NamedColor::Green => Some(ANSIColor::Green),
+                NamedColor::LightGreen => Some(ANSIColor::LightGreen),
                 NamedColor::Yellow => Some(ANSIColor::Yellow),
+                NamedColor::LightYellow => Some(ANSIColor::LightYellow),
                 NamedColor::Blue => Some(ANSIColor::Blue),
+                NamedColor::LightBlue => Some(ANSIColor::LightBlue),
                 NamedColor::Purple => Some(ANSIColor::Purple),
+                NamedColor::LightPurple => Some(ANSIColor::LightPurple),
+                NamedColor::Magenta => Some(ANSIColor::Magenta),
+                NamedColor::LightMagenta => Some(ANSIColor::LightMagenta),
                 NamedColor::Cyan => Some(ANSIColor::Cyan),
+                NamedColor::LightCyan => Some(ANSIColor::LightCyan),
                 NamedColor::White => Some(ANSIColor::White),
+                NamedColor::LightGray => Some(ANSIColor::LightGray),
             },
             Color::Fixed(fixed) => Some(ANSIColor::Fixed(*fixed)),
             Color::Hex(HexColor(r, g, b)) => Some(ANSIColor::Rgb(*r, *g, *b)),
@@ -99,13 +109,23 @@ impl Default for Color {
 pub enum NamedColor {
     Default,
     Black,
+    DarkGray,
     Red,
+    LightRed,
     Green,
+    LightGreen,
     Yellow,
+    LightYellow,
     Blue,
+    LightBlue,
     Purple,
+    LightPurple,
+    Magenta,
+    LightMagenta,
     Cyan,
+    LightCyan,
     White,
+    LightGray,
 }
 
 #[derive(Debug, PartialEq)]
@@ -180,6 +200,10 @@ mod tests {
         - foreground: red
           background: '#12ABef'
           decoration: []
+
+        - foreground: light_red
+          background: magenta
+          decoration: []
         ";
 
         let styles: Vec<Style> = serde_yaml::from_str(text).unwrap();
@@ -195,6 +219,11 @@ mod tests {
                 Style {
                     foreground: Color::Named(NamedColor::Red),
                     background: Color::Hex(HexColor(0x12, 0xab, 0xef)),
+                    decoration: vec![]
+                },
+                Style {
+                    foreground: Color::Named(NamedColor::LightRed),
+                    background: Color::Named(NamedColor::Magenta),
                     decoration: vec![]
                 },
             ]
