@@ -22,7 +22,7 @@ use crate::{
     config::{Config, SegmentKind},
     info::{gh::GhInfo, git::GitInfo, glab::GlabInfo},
 };
-use ansi_term::Style;
+use nu_ansi_term::Style;
 use std::io;
 
 #[derive(Debug, PartialEq)]

@@ -1,4 +1,4 @@
-use ansi_term::{Colour as ANSIColor, Style as ANSIStyle};
+use nu_ansi_term::{Color as ANSIColor, Style as ANSIStyle};
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer,
@@ -83,7 +83,7 @@ impl Color {
                 NamedColor::White => Some(ANSIColor::White),
             },
             Color::Fixed(fixed) => Some(ANSIColor::Fixed(*fixed)),
-            Color::Hex(HexColor(r, g, b)) => Some(ANSIColor::RGB(*r, *g, *b)),
+            Color::Hex(HexColor(r, g, b)) => Some(ANSIColor::Rgb(*r, *g, *b)),
         }
     }
 }

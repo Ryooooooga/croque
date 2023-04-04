@@ -1,6 +1,6 @@
 use super::Segment;
 use crate::{config::Config, shell::Shell};
-use ansi_term::{Colour, Style};
+use nu_ansi_term::{Color, Style};
 use std::fmt::{self, Write};
 use std::io;
 use unicode_width::UnicodeWidthStr;
@@ -37,7 +37,7 @@ impl<'a> Presenter<'a> {
         content.width()
     }
 
-    fn closure(&self, out: &mut String, color: Option<Colour>, dir: Direction) -> usize {
+    fn closure(&self, out: &mut String, color: Option<Color>, dir: Direction) -> usize {
         let (style, content) = if let Some(color) = color {
             let style = Style::new().fg(color);
             let content = match dir {
@@ -46,7 +46,7 @@ impl<'a> Presenter<'a> {
             };
             (style, content)
         } else {
-            let style = Style::new().fg(Colour::White);
+            let style = Style::new().fg(Color::White);
             let content = match dir {
                 Direction::Left => &self.config.segment_separators.wire_left,
                 Direction::Right => &self.config.segment_separators.wire_right,
@@ -65,28 +65,28 @@ impl<'a> Presenter<'a> {
     fn separator(
         &self,
         out: &mut String,
-        prev_bg: Option<Colour>,
-        next_bg: Option<Colour>,
+        prev_bg: Option<Color>,
+        next_bg: Option<Color>,
         dir: Direction,
     ) -> usize {
         let (style, content) = if next_bg == prev_bg {
             let style = next_bg
                 .iter()
-                .fold(Style::new().fg(Colour::White), |style, bg| style.on(*bg));
+                .fold(Style::new().fg(Color::White), |style, bg| style.on(*bg));
             let content = match dir {
                 Direction::Left => &self.config.segment_separators.wire_left,
                 Direction::Right => &self.config.segment_separators.wire_right,
             };
             (style, content)
         } else if let Direction::Left = dir {
-            let fg = prev_bg.unwrap_or(Colour::White);
+            let fg = prev_bg.unwrap_or(Color::White);
             let style = next_bg
                 .iter()
                 .fold(Style::new().fg(fg), |style, bg| style.on(*bg));
             let content = &self.config.segment_separators.solid_left;
             (style, content)
         } else {
-            let fg = next_bg.unwrap_or(Colour::White);
+            let fg = next_bg.unwrap_or(Color::White);
             let style = prev_bg
                 .iter()
                 .fold(Style::new().fg(fg), |style, bg| style.on(*bg));
