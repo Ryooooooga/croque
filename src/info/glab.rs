@@ -61,7 +61,7 @@ fn load_merge_request() -> Option<MergeRequest> {
                 _ => MergeRequestState::Open,
             };
         } else if let Some(title) = trimmed_line.strip_prefix("title:") {
-            mr.is_draft = title.trim().starts_with("Draft:");
+            mr.is_draft = title.trim().to_lowercase().starts_with("draft:");
         } else if let Some(comments) = trimmed_line.strip_prefix("comments:") {
             mr.comments = comments.trim().parse().unwrap_or(0);
         } else if trimmed_line == "--" {
