@@ -20,7 +20,7 @@ impl DurationConfig {
     }
 
     fn default_content() -> String {
-        " 祥{{.duration}} ".to_string()
+        " 󰔛 {{.duration}} ".to_string()
     }
 }
 

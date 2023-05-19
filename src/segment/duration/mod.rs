@@ -74,67 +74,67 @@ mod tests {
             },
             Scenario {
                 duration: 1.234_567,
-                expected_content: Some(" 祥1.23s "),
+                expected_content: Some(" 󰔛 1.23s "),
             },
             Scenario {
                 duration: 2.236,
-                expected_content: Some(" 祥2.24s "),
+                expected_content: Some(" 󰔛 2.24s "),
             },
             Scenario {
                 duration: 0.567_8,
-                expected_content: Some(" 祥568ms "),
+                expected_content: Some(" 󰔛 568ms "),
             },
             Scenario {
                 duration: 0.056_78,
-                expected_content: Some(" 祥56.8ms "),
+                expected_content: Some(" 󰔛 56.8ms "),
             },
             Scenario {
                 duration: 0.005_678,
-                expected_content: Some(" 祥5.68ms "),
+                expected_content: Some(" 󰔛 5.68ms "),
             },
             Scenario {
                 duration: 0.000_567_8,
-                expected_content: Some(" 祥568μs "),
+                expected_content: Some(" 󰔛 568μs "),
             },
             Scenario {
                 duration: 0.000_056_78,
-                expected_content: Some(" 祥57μs "),
+                expected_content: Some(" 󰔛 57μs "),
             },
             Scenario {
                 duration: 0.000_005_678,
-                expected_content: Some(" 祥6μs "),
+                expected_content: Some(" 󰔛 6μs "),
             },
             Scenario {
                 duration: 0.000_000_512,
-                expected_content: Some(" 祥1μs "),
+                expected_content: Some(" 󰔛 1μs "),
             },
             Scenario {
                 duration: 0.000_000_499,
-                expected_content: Some(" 祥0μs "),
+                expected_content: Some(" 󰔛 0μs "),
             },
             Scenario {
                 duration: 59.94,
-                expected_content: Some(" 祥59.9s "),
+                expected_content: Some(" 󰔛 59.9s "),
             },
             Scenario {
                 duration: 59.95,
-                expected_content: Some(" 祥1m 0s "),
+                expected_content: Some(" 󰔛 1m 0s "),
             },
             Scenario {
                 duration: 92.3,
-                expected_content: Some(" 祥1m 32s "),
+                expected_content: Some(" 󰔛 1m 32s "),
             },
             Scenario {
                 duration: 3599.4,
-                expected_content: Some(" 祥59m 59s "),
+                expected_content: Some(" 󰔛 59m 59s "),
             },
             Scenario {
                 duration: 3599.5,
-                expected_content: Some(" 祥1h 0m 0s "),
+                expected_content: Some(" 󰔛 1h 0m 0s "),
             },
             Scenario {
                 duration: 12.0 * 60.0 * 60.0 + 38.0 * 60.0 + 45.0,
-                expected_content: Some(" 祥12h 38m 45s "),
+                expected_content: Some(" 󰔛 12h 38m 45s "),
             },
         ];
 

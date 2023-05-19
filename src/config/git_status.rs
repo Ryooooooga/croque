@@ -36,7 +36,7 @@ impl GitStatusConfig {
         vec![
             RemoteConfig {
                 pattern: "github.com".to_string(),
-                icon: " ".to_string(),
+                icon: " ".to_string(),
             },
             RemoteConfig {
                 pattern: "".to_string(),
@@ -109,7 +109,7 @@ pub struct GitStatusIcons {
 
 impl GitStatusIcons {
     fn default_branch() -> String {
-        "".to_string()
+        "".to_string()
     }
     fn default_tag() -> String {
         "".to_string()
