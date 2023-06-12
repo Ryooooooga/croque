@@ -30,8 +30,7 @@ impl<'a> UserSegmentBuilder<'a> {
         username: &'a dyn Fn() -> Option<String>,
         hostname: &'a dyn Fn() -> Option<String>,
     ) -> Self {
-        let replacer = AhoCorasick::new(["{{.user}}", "{{.host}}"]);
-
+        let replacer = AhoCorasick::new(["{{.user}}", "{{.host}}"]).unwrap();
         Self {
             replacer,
             username,

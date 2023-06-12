@@ -12,7 +12,7 @@ pub struct GlabMergeRequestSegmentBuilder {
 
 impl GlabMergeRequestSegmentBuilder {
     pub fn new() -> Self {
-        let replacer = AhoCorasick::new(["{{.number}}", "{{.state}}", "{{.comments}}"]);
+        let replacer = AhoCorasick::new(["{{.number}}", "{{.state}}", "{{.comments}}"]).unwrap();
         Self { replacer }
     }
 

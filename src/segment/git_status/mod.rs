@@ -20,7 +20,8 @@ impl GitStatusSegmentBuilder {
             "{{.head}}",
             "{{.working_tree}}",
             "{{.upstream}}",
-        ]);
+        ])
+        .unwrap();
         Self { replacer }
     }
 

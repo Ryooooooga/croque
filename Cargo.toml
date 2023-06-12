@@ -17,7 +17,7 @@ keywords = [
 
 
 [dependencies]
-aho-corasick = "0.7"
+aho-corasick = "1.0"
 nu-ansi-term = "0.47"
 base64 = "0.21"
 bincode = "1.3"

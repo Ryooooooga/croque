@@ -19,7 +19,7 @@ pub struct StatusSegmentBuilder<'a> {
 
 impl<'a> StatusSegmentBuilder<'a> {
     pub fn new(is_root: &'a dyn Fn() -> bool) -> Self {
-        let replacer = AhoCorasick::new(["{{.exit_status}}", "{{.root}}", "{{.jobs}}"]);
+        let replacer = AhoCorasick::new(["{{.exit_status}}", "{{.root}}", "{{.jobs}}"]).unwrap();
         Self { replacer, is_root }
     }
 }
