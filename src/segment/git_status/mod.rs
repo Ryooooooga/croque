@@ -1,5 +1,5 @@
 use crate::{
-    config::git_status::{GitStatusIcons, RemoteConfig},
+    config::git_status::{BranchAlias, GitStatusIcons, RemoteConfig},
     info::git::{Head, RemoteStatus, UpstreamStatus, WorkingTreeStatus},
 };
 use aho_corasick::AhoCorasick;
@@ -62,15 +62,23 @@ impl GitStatusSegmentBuilder {
         head: &'a Head,
         icons: &'a GitStatusIcons,
         display_master: bool,
+        branch_aliases: &[BranchAlias],
         commit_hash_length: usize,
     ) -> Cow<'a, str> {
         match head {
-            Head::Branch(branch) => {
+            Head::Branch(branch) if !display_master && (branch == "master" || branch == "main") => {
                 let icon = &icons.branch;
-                if !display_master && (branch == "master" || branch == "main") {
-                    Cow::from(icon)
-                } else if icon.is_empty() {
-                    Cow::from(branch)
+                Cow::from(icon)
+            }
+            Head::Branch(branch) => {
+                let branch = branch_aliases
+                    .iter()
+                    .find(|ba| branch.starts_with(&ba.prefix))
+                    .map(|ba| Cow::from(format!("{}{}", ba.alias, &branch[ba.prefix.len()..])))
+                    .unwrap_or(Cow::from(branch));
+                let icon = &icons.branch;
+                if icon.is_empty() {
+                    branch
                 } else {
                     Cow::from(format!("{icon} {branch}"))
                 }
@@ -155,6 +163,7 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
             &git_info.head,
             &config.icons,
             config.display_master,
+            &config.branch_aliases,
             config.commit_hash_length,
         );
 

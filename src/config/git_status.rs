@@ -24,6 +24,9 @@ pub struct GitStatusConfig {
     #[serde(default = "GitStatusConfig::default_display_master")]
     pub display_master: bool,
 
+    #[serde(default)]
+    pub branch_aliases: Vec<BranchAlias>,
+
     #[serde(default = "GitStatusConfig::default_commit_hash_length")]
     pub commit_hash_length: usize,
 
@@ -68,6 +71,7 @@ impl Default for GitStatusConfig {
             conflicted: Default::default(),
             remotes: Self::default_remotes(),
             display_master: Self::default_display_master(),
+            branch_aliases: Default::default(),
             commit_hash_length: Self::default_commit_hash_length(),
             content: Self::default_content(),
         }
@@ -257,4 +261,10 @@ impl Default for ConflictedStatusConfig {
 pub struct RemoteConfig {
     pub pattern: String,
     pub icon: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct BranchAlias {
+    pub prefix: String,
+    pub alias: String,
 }
