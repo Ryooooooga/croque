@@ -197,7 +197,7 @@ checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
 name = "croque"
-version = "0.5.6"
+version = "0.5.7"
 dependencies = [
  "aho-corasick",
  "base64",
