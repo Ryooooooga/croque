@@ -52,10 +52,12 @@ impl SegmentBuilder for OsSegmentBuilder {
 
 #[cfg(target_os = "linux")]
 mod linux {
-    use std::io::Read;
+    use std::{fs::File, io::Read};
 
     #[derive(Debug, Default)]
     pub enum Distribution {
+        #[default]
+        Unknown,
         Alpine,
         Amazon,
         Arch,
@@ -65,34 +67,33 @@ mod linux {
         NixOS,
         Raspbian,
         Ubuntu,
-        #[default]
-        Unknown,
     }
 
     pub fn detect_distribution() -> Option<Distribution> {
+        let mut file = File::open("/etc/os-release").ok()?;
+
         const HEAD_SIZE: usize = 400;
         let mut buf = [0; HEAD_SIZE];
-        let size = std::fs::File::open("/etc/os-release")
-            .ok()?
-            .read(&mut buf)
-            .ok()?;
+        let size = file.read(&mut buf).ok()?;
 
         let head = std::str::from_utf8(&buf[..size]).ok()?;
 
         for line in head.split('\n') {
             if let Some(id) = line.strip_prefix("ID=") {
-                match id {
-                    "alpine" => return Some(Distribution::Alpine),
-                    "amazon" => return Some(Distribution::Amazon),
-                    "arch" => return Some(Distribution::Arch),
-                    "centos" => return Some(Distribution::CentOS),
-                    "debian" => return Some(Distribution::Debian),
-                    "gentoo" => return Some(Distribution::Gentoo),
-                    "nixos" => return Some(Distribution::NixOS),
-                    "raspbian" => return Some(Distribution::Raspbian),
-                    "ubuntu" => return Some(Distribution::Ubuntu),
-                    _ => return Some(Distribution::Unknown),
-                }
+                let distribution = match id {
+                    "alpine" => Distribution::Alpine,
+                    "amazon" => Distribution::Amazon,
+                    "arch" => Distribution::Arch,
+                    "centos" => Distribution::CentOS,
+                    "debian" => Distribution::Debian,
+                    "gentoo" => Distribution::Gentoo,
+                    "nixos" => Distribution::NixOS,
+                    "raspbian" => Distribution::Raspbian,
+                    "ubuntu" => Distribution::Ubuntu,
+                    _ => return None,
+                };
+
+                return Some(distribution);
             }
         }
 
