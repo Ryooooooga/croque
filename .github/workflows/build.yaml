@@ -53,7 +53,6 @@ jobs:
         with:
           submodules: true
 
-
       - name: rust-toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -219,6 +218,7 @@ jobs:
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
+          generate_release_notes: true
           files: |
             checksum.txt
             ${{ steps.asset.outputs.asset-x86_64-apple-darwin }}
