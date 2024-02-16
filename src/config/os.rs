@@ -33,7 +33,7 @@ impl LinuxOsConfig {
     }
 
     fn default_content() -> String {
-        "  ".to_string()
+        "  ".to_string()
     }
 }
 
