@@ -1,4 +1,58 @@
 os:
+  alpine:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  amazon:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  arch:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  centos:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  debian:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  gentooo:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  nix:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  raspbian:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
+  ubuntu:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: "  "
   linux:
     style:
       foreground: white
