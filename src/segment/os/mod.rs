@@ -80,6 +80,12 @@ mod linux {
 
         for line in head.split('\n') {
             if let Some(id) = line.strip_prefix("ID=") {
+                let id = id
+                    .strip_prefix('"')
+                    .unwrap_or(id)
+                    .strip_suffix('"')
+                    .unwrap_or(id);
+
                 let distribution = match id {
                     "alpine" => Distribution::Alpine,
                     "amzn" => Distribution::Amazon,
