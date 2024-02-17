@@ -82,7 +82,7 @@ mod linux {
             if let Some(id) = line.strip_prefix("ID=") {
                 let distribution = match id {
                     "alpine" => Distribution::Alpine,
-                    "amazon" => Distribution::Amazon,
+                    "amzn" => Distribution::Amazon,
                     "arch" => Distribution::Arch,
                     "centos" => Distribution::CentOS,
                     "debian" => Distribution::Debian,
