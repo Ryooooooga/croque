@@ -51,6 +51,7 @@ pub struct OsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct AlpineOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -75,6 +76,7 @@ impl Default for AlpineOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct AmazonOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -99,6 +101,7 @@ impl Default for AmazonOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ArchOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -123,6 +126,7 @@ impl Default for ArchOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CentOSOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -147,6 +151,7 @@ impl Default for CentOSOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct GentooOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -171,6 +176,7 @@ impl Default for GentooOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct NixOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -195,6 +201,7 @@ impl Default for NixOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct RaspbianOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -219,6 +226,7 @@ impl Default for RaspbianOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct DebianOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -243,6 +251,7 @@ impl Default for DebianOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct UbuntuOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -267,6 +276,7 @@ impl Default for UbuntuOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct LinuxOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -291,6 +301,7 @@ impl Default for LinuxOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct MacOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -315,6 +326,7 @@ impl Default for MacOsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct WindowsOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
