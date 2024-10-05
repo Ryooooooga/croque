@@ -21,7 +21,7 @@ pub struct DirenvConfig {
 
 impl DirenvConfig {
     fn default_content() -> String {
-        " {{.status}} ".to_string()
+        " .{{.status}} ".to_string()
     }
 }
 
