@@ -240,6 +240,28 @@ glab_merge_request:
       decoration: []
   content: "  !{{.number}}{{.state}}{{.comments}} "
 
+direnv:
+  icons:
+    loaded: ""
+    found: ""
+    disallowed: ""
+  loaded:
+    style:
+      foreground: white
+      background: "#96a1b5"
+      decoration: []
+  found:
+    style:
+      foreground: white
+      background: 243
+      decoration: []
+  disallowed:
+    style:
+      foreground: white
+      background: 243
+      decoration: []
+  content: " {{.status}} "
+
 segment_separators:
     solid_left: ""
     wire_left: ""
@@ -258,6 +280,7 @@ segments:
     right:
       - time
   - left:
+      - direnv
       - status
       - duration
     right:

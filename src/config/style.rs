@@ -129,7 +129,7 @@ pub enum NamedColor {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct HexColor(u8, u8, u8);
+pub struct HexColor(pub u8, pub u8, pub u8);
 
 impl HexColor {
     fn try_from(value: &str) -> Option<Self> {

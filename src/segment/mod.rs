@@ -1,3 +1,4 @@
+mod direnv;
 mod duration;
 mod gh_pull_request;
 mod git_status;
@@ -22,6 +23,7 @@ use crate::{
     config::{Config, SegmentKind},
     info::{gh::GhInfo, git::GitInfo, glab::GlabInfo},
 };
+use direnv::DirenvSegmentBuilder;
 use nu_ansi_term::Style;
 use std::io;
 
@@ -74,6 +76,7 @@ struct SegmentBuilders<'a> {
     git_user: GitUserSegmentBuilder,
     gh_pull_request: GhPullRequestSegmentBuilder,
     glab_merge_request: GlabMergeRequestSegmentBuilder,
+    direnv: DirenvSegmentBuilder,
 }
 
 impl SegmentBuilders<'_> {
@@ -89,6 +92,7 @@ impl SegmentBuilders<'_> {
             SegmentKind::GitUser => self.git_user.build(ctx),
             SegmentKind::GhPullRequest => self.gh_pull_request.build(ctx),
             SegmentKind::GlabMergeRequest => self.glab_merge_request.build(ctx),
+            SegmentKind::Direnv => self.direnv.build(ctx),
         }
     }
 
