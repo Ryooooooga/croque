@@ -116,7 +116,7 @@ jobs:
             ARCHIVE=.zip
           fi
 
-          NAME="${GITHUB_REPOSITORY#*/}"
+          NAME="croque"#"${GITHUB_REPOSITORY#*/}"
           EXECUTABLE="${NAME}${EXE}"
           ASSET="${NAME}${ARCHIVE}"
           mv "./target/${{ matrix.target }}/release/${EXECUTABLE}" "./${EXECUTABLE}"
