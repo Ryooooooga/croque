@@ -1,13 +1,25 @@
+# License: MIT
+# Authors:
+# - Mathias Fredriksson <https://github.com/mafredri>
+# - Ryooooooga <eial5q265e5@gmail.com>
+# - Alex Mullen <alex@xela.foo>
+
 # >> zsh-async
 # License: MIT
 # Authors:
 # - Mathias Fredriksson <https://github.com/mafredri>
+# - Alex Mullen <alex@xela.foo>
 # >> BEGIN zsh-async
+#TODO handle this version somehow
+# Version can be checked by consumer programs.
 typeset -g ASYNC_VERSION=1.8.6
 # Produce debug output from zsh-async when set to 1.
 typeset -g ASYNC_DEBUG=${ASYNC_DEBUG:-0}
 # When ASYNC_DEBUG=1, worker stderr output will be redirected here.
 typeset -g ASYNC_DEBUG_WORKER_STDERR=${ASYNC_DEBUG_WORKER_STDERR:-/dev/null}
+# other vars
+typeset -g ASYNC_INIT_DONE
+typeset -gA ASYNC_PTYS
 
 # The maximum buffer size when outputting to zpty.
 #
@@ -382,7 +394,7 @@ _async_zle_watcher() {
 	local worker=$ASYNC_PTYS[$1]
 	local callback=$ASYNC_CALLBACKS[$worker]
 
-	if [[ -n $2 ]]; then
+	if [[ $# -ge 2 ]] && [[ -n $2 ]]; then
 		# from man zshzle(1):
 		# `hup' for a disconnect, `nval' for a closed or otherwise
 		# invalid descriptor, or `err' for any other condition.
@@ -790,6 +802,17 @@ autoload -Uz add-zsh-hook
 add-zsh-hook chpwd croque::chpwd
 add-zsh-hook preexec croque::preexec
 add-zsh-hook precmd croque::precmd
+
+# check git info
+# ensure vars are set
+missing_info() {
+  if [[ "${CRAQ_WARN_MISSING_INFO:-1}" == "0" ]]; then return; fi
+  printf "Missing %s info for croque! Make sure %s is installed and configured.\n" "$1" "$1"
+  printf "Set CRAQ_WARN_MISSING_INFO=0 to disable this warning.\n"
+}
+if [[ -z "${__croque_git_info:=""}" ]]; then missing_info git; fi
+if [[ -z "${__croque_gh_info:=""}" ]]; then missing_info gh; fi
+if [[ -z "${__croque_glab_info:=""}" ]]; then missing_info glab; fi
 
 setopt prompt_subst
 PROMPT='$(croque::prompt)'
