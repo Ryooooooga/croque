@@ -154,7 +154,7 @@ jobs:
       - name: Rename assets
         id: asset
         run: |
-          NAME=${GITHUB_REPOSITORY#*/}
+          NAME="croque"#${GITHUB_REPOSITORY#*/}
           TAG=${GITHUB_REF#refs/tags/}
 
           mv "artifact-x86_64-apple-darwin/${NAME}.tar.gz" "./${NAME}-${TAG}-x86_64-apple-darwin.tar.gz"
