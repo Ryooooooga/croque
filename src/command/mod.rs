@@ -1,3 +1,7 @@
+// License: MIT
+// Authors:
+// - Ryooooooga <eial5q265e5@gmail.com>
+// - Alex Mullen <alex@xela.foo>
 mod config;
 mod init;
 mod prepare;
@@ -33,9 +37,6 @@ pub enum Subcommand {
 
 #[derive(Debug, clap::Args)]
 pub struct InitArgs {
-    #[arg(long, help = "Do not bundle zsh-async (zsh only)")]
-    pub without_async: bool,
-
     #[arg()]
     pub shell: Shell,
 }
