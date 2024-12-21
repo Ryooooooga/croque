@@ -720,101 +720,101 @@ async() {
 async "$@"
 # >> END zsh-async
 
-# >> croque
+# >> croq
 # License: MIT
 # Authors:
 # - Ryooooooga <eial5q265e5@gmail.com>
-# >> BEGIN croque
-croque::prepare-async::callback-git() {
-  __croque_git_info="$3"
+# >> BEGIN croq
+croq::prepare-async::callback-git() {
+  __croq_git_info="$3"
   zle reset-prompt
 }
 
-croque::prepare-async::callback-gh() {
-  __croque_gh_info="$3"
+croq::prepare-async::callback-gh() {
+  __croq_gh_info="$3"
   zle reset-prompt
 }
 
-croque::prepare-async::callback-glab() {
-  __croque_glab_info="$3"
+croq::prepare-async::callback-glab() {
+  __croq_glab_info="$3"
   zle reset-prompt
 }
 
-croque::prepare-async() {
+croq::prepare-async() {
   local source="$1"
-  local worker="croque_async_worker_$source"
+  local worker="croq_async_worker_$source"
   async_stop_worker "$worker"
   async_start_worker "$worker" -n
-  async_register_callback "$worker" "croque::prepare-async::callback-$source"
-  async_job "$worker" croque prepare "$source"
+  async_register_callback "$worker" "croq::prepare-async::callback-$source"
+  async_job "$worker" croq prepare "$source"
 }
 
-croque::prepare() {
+croq::prepare() {
   if (( ${+ASYNC_VERSION} )); then
-    croque::prepare-async git
-    (( ${+commands[gh]} )) && croque::prepare-async gh
-    (( ${+commands[glab]} )) && croque::prepare-async glab
+    croq::prepare-async git
+    (( ${+commands[gh]} )) && croq::prepare-async gh
+    (( ${+commands[glab]} )) && croq::prepare-async glab
   else
-    __croque_git_info="$(croque prepare git)"
-    (( ${+commands[gh]} )) && __croque_gh_info="$(croque prepare gh)"
-    (( ${+commands[glab]} )) && __croque_glab_info="$(croque prepare glab)"
+    __croq_git_info="$(croq prepare git)"
+    (( ${+commands[gh]} )) && __croq_gh_info="$(croq prepare gh)"
+    (( ${+commands[glab]} )) && __croq_glab_info="$(croq prepare glab)"
   fi
 }
 
-croque::chpwd() {
-  unset __croque_git_info
-  unset __croque_gh_info
-  unset __croque_glab_info
+croq::chpwd() {
+  unset __croq_git_info
+  unset __croq_gh_info
+  unset __croq_glab_info
 }
 
-croque::preexec() {
-  unset __croque_exit_status_overwrite
-  __croque_start="$EPOCHREALTIME"
+croq::preexec() {
+  unset __croq_exit_status_overwrite
+  __croq_start="$EPOCHREALTIME"
 }
 
-croque::precmd() {
-  __croque_exit_status="${__croque_exit_status_overwrite:-$?}"
-  __croque_jobs="$#jobstates"
+croq::precmd() {
+  __croq_exit_status="${__croq_exit_status_overwrite:-$?}"
+  __croq_jobs="$#jobstates"
   local end="$EPOCHREALTIME"
-  __croque_duration="$(($end - ${__croque_start:-$end}))"
-  unset __croque_start
+  __croq_duration="$(($end - ${__croq_start:-$end}))"
+  unset __croq_start
 
-  croque::prepare
+  croq::prepare
 }
 
-croque::prompt() {
-  croque prompt --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" --data.glab="$__croque_glab_info" zsh
+croq::prompt() {
+  croq prompt --exit-status="$__croq_exit_status" --jobs="$__croq_jobs" --duration="$__croq_duration" --width="$COLUMNS" --data.git="$__croq_git_info" --data.gh="$__croq_gh_info" --data.glab="$__croq_glab_info" zsh
 }
 
-croque::rprompt() {
-  croque prompt --right --exit-status="$__croque_exit_status" --jobs="$__croque_jobs" --duration="$__croque_duration" --width="$COLUMNS" --data.git="$__croque_git_info" --data.gh="$__croque_gh_info" --data.glab="$__croque_glab_info" zsh
+croq::rprompt() {
+  croq prompt --right --exit-status="$__croq_exit_status" --jobs="$__croq_jobs" --duration="$__croq_duration" --width="$COLUMNS" --data.git="$__croq_git_info" --data.gh="$__croq_gh_info" --data.glab="$__croq_glab_info" zsh
 }
 
-croque::clear-screen() {
-  __croque_exit_status_overwrite=0
-  croque::precmd
+croq::clear-screen() {
+  __croq_exit_status_overwrite=0
+  croq::precmd
   zle .clear-screen
 }
 
-zle -N clear-screen croque::clear-screen
+zle -N clear-screen croq::clear-screen
 
 autoload -Uz add-zsh-hook
-add-zsh-hook chpwd croque::chpwd
-add-zsh-hook preexec croque::preexec
-add-zsh-hook precmd croque::precmd
+add-zsh-hook chpwd croq::chpwd
+add-zsh-hook preexec croq::preexec
+add-zsh-hook precmd croq::precmd
 
 # check git info
 # ensure vars are set
 missing_info() {
   if [[ "${CRAQ_WARN_MISSING_INFO:-"1"}" == "0" ]]; then return; fi
-  printf "Missing %s info for croque! Make sure %s is installed and configured.\n" "$1" "$1"
+  printf "Missing %s info for croq! Make sure %s is installed and configured.\n" "$1" "$1"
   printf "Set CRAQ_WARN_MISSING_INFO=0 to disable this warning.\n"
 }
-if [[ -z "${__croque_git_info:=""}" ]]; then missing_info git; fi
-if [[ -z "${__croque_gh_info:=""}" ]]; then missing_info gh; fi
-if [[ -z "${__croque_glab_info:=""}" ]]; then missing_info glab; fi
+if [[ -z "${__croq_git_info:=""}" ]]; then missing_info git; fi
+if [[ -z "${__croq_gh_info:=""}" ]]; then missing_info gh; fi
+if [[ -z "${__croq_glab_info:=""}" ]]; then missing_info glab; fi
 
 setopt prompt_subst
-PROMPT='$(croque::prompt)'
-RPROMPT='$(croque::rprompt)'
-# >> END croque
+PROMPT='$(croq::prompt)'
+RPROMPT='$(croq::rprompt)'
+# >> END croq

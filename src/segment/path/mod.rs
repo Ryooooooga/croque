@@ -98,7 +98,7 @@ mod tests {
         let scenarios = &[
             Scenario {
                 testname: "should return segment if cwd is not none",
-                cwd: Some("/home/ayaka/repos/github.com/Ryooooooga/croque/src"),
+                cwd: Some("/home/ayaka/repos/github.com/Ryooooooga/croq/src"),
                 home: Some("/home/ayaka"),
                 expected_content: " ~/r/g/R/c/src ",
             },

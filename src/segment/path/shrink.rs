@@ -211,14 +211,14 @@ fn test_shrink_path() {
 
     assert_eq!(
         &shrink_path(
-            &PathBuf::from("/home/ayaka/.config/croque/"),
+            &PathBuf::from("/home/ayaka/.config/croq/"),
             home,
             None,
             aliases,
             true,
             2
         ),
-        "~/.co/croque"
+        "~/.co/croq"
     );
 
     assert_eq!(

@@ -1,7 +1,7 @@
-# Croque
+# Croq
 
-[![](https://github.com/Ryooooooga/croque/workflows/Build/badge.svg)](https://github.com/Ryooooooga/croque/actions)
-[![](https://badgen.net/crates/v/croque)](https://crates.io/crates/croque)
+[![](https://github.com/Ryooooooga/croq/workflows/Build/badge.svg)](https://github.com/Ryooooooga/croq/actions)
+[![](https://badgen.net/crates/v/croq)](https://crates.io/crates/croq)
 
 Fast and customizable shell prompt.
 
@@ -17,31 +17,31 @@ Fast and customizable shell prompt.
 ### From source
 
 ```sh
-cargo install croque
+cargo install croq
 ```
 
 ### From Homebrew
 
 ```sh
-brew install ryooooooga/tap/croque
+brew install ryooooooga/tap/croq
 ```
 
 ### From precompiled binary
 
-[releases](https://github.com/Ryooooooga/croque/releases)
+[releases](https://github.com/Ryooooooga/croq/releases)
 
 ### Bash
 
 ```bash
 # ~/.bashrc
-eval "$(croque init bash)"
+eval "$(croq init bash)"
 ```
 
 ### Zsh
 
 ```zsh
 # ~/.zshrc
-eval "$(croque init zsh)"
+eval "$(croq init zsh)"
 ```
 
 #### Using [Zinit](https://github.com/zdharma-continuum/zinit)
@@ -49,20 +49,20 @@ eval "$(croque init zsh)"
 ```zsh
 # .zshrc
 zinit light-mode from'gh-r' as'program' for \
-    atclone'./croque init zsh >croque.zsh; zcompile croque.zsh' atpull'%atclone' \
-    src'croque.zsh' \
-    @'Ryooooooga/croque'
+    atclone'./croq init zsh >croq.zsh; zcompile croq.zsh' atpull'%atclone' \
+    src'croq.zsh' \
+    @'Ryooooooga/croq'
 ```
 
 ### Fish
 
 ```fish
 # ~/.config/fish/config.fish
-croque init fish | source
+croq init fish | source
 ```
 
 ## Configuration
 
 ```sh
-$ croque config > ~/.config/croque/config.yaml
+$ croq config > ~/.config/croq/config.yaml
 ```

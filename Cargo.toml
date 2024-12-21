@@ -1,11 +1,11 @@
 [package]
-name = "croque"
-version = "0.7.0"
-authors = ['Ryooooooga <eial5q265e5@gmail.com>']
+name = "croq"
+version = "0.8.0"
+authors = ['voidxela <alex@xela.foo>']
 description = "Fast and customizable shell prompt"
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/Ryooooooga/croque"
+repository = "https://github.com/voidxela/croq"
 edition = "2021"
 keywords = ["bash", "fish", "shell", "prompt", "zsh"]
 

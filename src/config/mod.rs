@@ -77,7 +77,7 @@ impl Config {
             match Self::load_from_file(&file) {
                 Ok(config) => return config,
                 Err(err) => eprintln!(
-                    "croque: failed to load config file `{}`: {}",
+                    "croq: failed to load config file `{}`: {}",
                     config_path.to_string_lossy(),
                     err,
                 ),
@@ -101,14 +101,14 @@ impl Config {
             PathBuf::from(path)
         } else if let Some(xdg_config_home) = std::env::var_os(XDG_CONFIG_HOME) {
             let mut path = PathBuf::from(xdg_config_home);
-            path.push("croque/config.yaml");
+            path.push("croq/config.yaml");
             path
         } else if let Some(home_dir) = dirs::home_dir() {
             let mut path = home_dir;
-            path.push(".config/croque/config.yaml");
+            path.push(".config/croq/config.yaml");
             path
         } else {
-            PathBuf::from("/etc/croque/config.yaml")
+            PathBuf::from("/etc/croq/config.yaml")
         }
     }
 
