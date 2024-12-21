@@ -1,3 +1,7 @@
+// License: MIT
+// Authors:
+// - Ryooooooga <eial5q265e5@gmail.com>
+// - Alex Mullen <alex@xela.foo>
 use serde::Deserialize;
 
 use super::style::{Color, NamedColor, Style};
@@ -152,6 +156,31 @@ impl Default for CentOSOsConfig {
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
+pub struct DebianOsConfig {
+    #[serde(default = "default_style")]
+    pub style: Style,
+
+    #[serde(default = "DebianOsConfig::default_content")]
+    pub content: String,
+}
+
+impl DebianOsConfig {
+    fn default_content() -> String {
+        "  ".to_string()
+    }
+}
+
+impl Default for DebianOsConfig {
+    fn default() -> Self {
+        Self {
+            style: default_style(),
+            content: Self::default_content(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct GentooOsConfig {
     #[serde(default = "default_style")]
     pub style: Style,
@@ -217,31 +246,6 @@ impl RaspbianOsConfig {
 }
 
 impl Default for RaspbianOsConfig {
-    fn default() -> Self {
-        Self {
-            style: default_style(),
-            content: Self::default_content(),
-        }
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[allow(dead_code)]
-pub struct DebianOsConfig {
-    #[serde(default = "default_style")]
-    pub style: Style,
-
-    #[serde(default = "DebianOsConfig::default_content")]
-    pub content: String,
-}
-
-impl DebianOsConfig {
-    fn default_content() -> String {
-        "  ".to_string()
-    }
-}
-
-impl Default for DebianOsConfig {
     fn default() -> Self {
         Self {
             style: default_style(),

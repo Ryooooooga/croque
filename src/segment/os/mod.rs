@@ -1,3 +1,7 @@
+// License: MIT
+// Authors:
+// - Ryooooooga <eial5q265e5@gmail.com>
+// - Alex Mullen <alex@xela.foo>
 use crate::config::style::Style;
 
 use super::{Context, Segment, SegmentBuilder};
@@ -78,28 +82,29 @@ mod linux {
 
         let head = std::str::from_utf8(&buf[..size]).ok()?;
 
+        let mut var = "ID";
         for line in head.split('\n') {
-            if let Some(id) = line.strip_prefix("ID=") {
+            if let Some(id) = line.strip_prefix(format!("{}=", var).as_str()) {
                 let id = id
                     .strip_prefix('"')
                     .unwrap_or(id)
                     .strip_suffix('"')
                     .unwrap_or(id);
 
-                let distribution = match id {
-                    "alpine" => Distribution::Alpine,
-                    "amzn" => Distribution::Amazon,
-                    "arch" => Distribution::Arch,
-                    "centos" => Distribution::CentOS,
-                    "debian" => Distribution::Debian,
-                    "gentoo" => Distribution::Gentoo,
-                    "nixos" => Distribution::NixOS,
-                    "raspbian" => Distribution::Raspbian,
-                    "ubuntu" => Distribution::Ubuntu,
-                    _ => return None,
+                let distro = match id {
+                    "alpine" => Some(Distribution::Alpine),
+                    "amzn" => Some(Distribution::Amazon),
+                    "arch" => Some(Distribution::Arch),
+                    "centos" => Some(Distribution::CentOS),
+                    "debian" => Some(Distribution::Debian),
+                    "gentoo" => Some(Distribution::Gentoo),
+                    "nixos" => Some(Distribution::NixOS),
+                    "raspbian" => Some(Distribution::Raspbian),
+                    "ubuntu" => Some(Distribution::Ubuntu),
+                    // if ID is not configured look for ID_LIKE. this assumes ID is above ID_LIKE
+                    _ => if var == "ID_LIKE" { return None } else { var = "ID_LIKE"; None },
                 };
-
-                return Some(distribution);
+                if distro.is_some() { return distro };
             }
         }
 
