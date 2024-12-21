@@ -806,7 +806,7 @@ add-zsh-hook precmd croque::precmd
 # check git info
 # ensure vars are set
 missing_info() {
-  if [[ "${CRAQ_WARN_MISSING_INFO:-1}" == "0" ]]; then return; fi
+  if [[ "${CRAQ_WARN_MISSING_INFO:-"1"}" == "0" ]]; then return; fi
   printf "Missing %s info for croque! Make sure %s is installed and configured.\n" "$1" "$1"
   printf "Set CRAQ_WARN_MISSING_INFO=0 to disable this warning.\n"
 }
