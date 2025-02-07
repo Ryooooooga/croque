@@ -150,7 +150,7 @@ impl<'de> Deserialize<'de> for HexColor {
         D: Deserializer<'de>,
     {
         struct RGBVisitor;
-        impl<'de> Visitor<'de> for RGBVisitor {
+        impl Visitor<'_> for RGBVisitor {
             type Value = HexColor;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
