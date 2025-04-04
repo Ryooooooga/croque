@@ -1,15 +1,15 @@
-use serde::{Deserialize, Serialize};
+use bincode::{Decode, Encode};
 use std::{
     io::Write,
     process::{Command, Stdio},
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct GlabInfo {
     pub merge_request: MergeRequest,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct MergeRequest {
     pub number: i32,
     pub state: MergeRequestState,
@@ -17,7 +17,7 @@ pub struct MergeRequest {
     pub is_draft: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub enum MergeRequestState {
     Open,
     Closed,

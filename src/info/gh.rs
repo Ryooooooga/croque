@@ -1,13 +1,14 @@
 use std::process::Command;
 
-use serde::{Deserialize, Serialize};
+use bincode::{Decode, Encode};
+use serde::Deserialize;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct GhInfo {
     pub pull_request: PullRequest,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct PullRequest {
     pub number: i32,
     pub state: PullRequestState,
@@ -15,7 +16,7 @@ pub struct PullRequest {
     pub is_draft: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum PullRequestState {
     Open,

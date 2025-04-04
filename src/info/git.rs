@@ -1,8 +1,8 @@
+use bincode::{Decode, Encode};
 use git2::{Reference, Repository, Status, StatusOptions};
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct GitInfo {
     pub workdir: Option<PathBuf>,
     pub head: Head,
@@ -12,14 +12,14 @@ pub struct GitInfo {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub enum Head {
     Branch(String),
     Tag(String),
     Commit(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct WorkingTreeStatus {
     unstaged_new: u32,
     unstaged_deleted: u32,
@@ -68,13 +68,13 @@ impl WorkingTreeStatus {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct UpstreamStatus {
     pub ahead: u32,
     pub behind: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Encode, Decode)]
 pub struct RemoteStatus {
     pub url: String,
 }
