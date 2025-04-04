@@ -29,10 +29,10 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - stable-x86_64-apple-darwin
+          - stable-aarch64-apple-darwin
           - stable-x86_64-unknown-linux-gnu
         include:
-          - toolchain: stable-x86_64-apple-darwin
+          - toolchain: stable-aarch64-apple-darwin
             os: macOS-latest
           - toolchain: stable-x86_64-unknown-linux-gnu
             os: ubuntu-latest
@@ -68,13 +68,10 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - x86_64-apple-darwin
           - x86_64-unknown-linux-gnu
           - aarch64-apple-darwin
           - aarch64-unknown-linux-gnu
         include:
-          - target: x86_64-apple-darwin
-            os: macOS-latest
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
           - target: aarch64-apple-darwin
@@ -157,12 +154,10 @@ jobs:
           NAME=${GITHUB_REPOSITORY#*/}
           TAG=${GITHUB_REF#refs/tags/}
 
-          mv "artifact-x86_64-apple-darwin/${NAME}.tar.gz" "./${NAME}-${TAG}-x86_64-apple-darwin.tar.gz"
           mv "artifact-x86_64-unknown-linux-gnu/${NAME}.tar.gz" "./${NAME}-${TAG}-x86_64-unknown-linux-gnu.tar.gz"
           mv "artifact-aarch64-apple-darwin/${NAME}.tar.gz" "./${NAME}-${TAG}-aarch64-apple-darwin.tar.gz"
           mv "artifact-aarch64-unknown-linux-gnu/${NAME}.tar.gz" "./${NAME}-${TAG}-aarch64-unknown-linux-gnu.tar.gz"
 
-          echo "asset-x86_64-apple-darwin=${NAME}-${TAG}-x86_64-apple-darwin.tar.gz" >>$GITHUB_OUTPUT
           echo "asset-x86_64-unknown-linux-gnu=${NAME}-${TAG}-x86_64-unknown-linux-gnu.tar.gz" >>$GITHUB_OUTPUT
           echo "asset-aarch64-apple-darwin=${NAME}-${TAG}-aarch64-apple-darwin.tar.gz" >>$GITHUB_OUTPUT
           echo "asset-aarch64-unknown-linux-gnu=${NAME}-${TAG}-aarch64-unknown-linux-gnu.tar.gz" >>$GITHUB_OUTPUT
@@ -170,7 +165,6 @@ jobs:
       - name: Checksum
         run: >
           sha256sum
-          ${{ steps.asset.outputs.asset-x86_64-apple-darwin }}
           ${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}
           ${{ steps.asset.outputs.asset-aarch64-apple-darwin }}
           ${{ steps.asset.outputs.asset-aarch64-unknown-linux-gnu }}
@@ -185,8 +179,6 @@ jobs:
           repo="https://github.com/${{ github.repository }}"
           tag="${GITHUB_REF#refs/tags/}"
           version="${tag#v}"
-          x86_64_darwin="${{ steps.asset.outputs.asset-x86_64-apple-darwin }}"
-          x86_64_darwin_sha256="$(sha256sum "${{ steps.asset.outputs.asset-x86_64-apple-darwin }}" | awk '{ print $1 }')"
           x86_64_linux="${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}"
           x86_64_linux_sha256="$(sha256sum "${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}" | awk '{ print $1 }')"
           aarch64_darwin="${{ steps.asset.outputs.asset-aarch64-apple-darwin }}"
@@ -213,7 +205,6 @@ jobs:
           generate_release_notes: true
           files: |
             checksum.txt
-            ${{ steps.asset.outputs.asset-x86_64-apple-darwin }}
             ${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}
             ${{ steps.asset.outputs.asset-aarch64-apple-darwin }}
             ${{ steps.asset.outputs.asset-aarch64-unknown-linux-gnu }}
