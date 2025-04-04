@@ -69,17 +69,9 @@ mod linux {
         Ubuntu,
     }
 
-    pub fn detect_distribution() -> Option<Distribution> {
-        let mut file = File::open("/etc/os-release").ok()?;
-
-        const HEAD_SIZE: usize = 400;
-        let mut buf = [0; HEAD_SIZE];
-        let size = file.read(&mut buf).ok()?;
-
-        let head = std::str::from_utf8(&buf[..size]).ok()?;
-
-        for line in head.split('\n') {
-            if let Some(id) = line.strip_prefix("ID=") {
+    fn find_distribution(os_release: &str, prefix: &str) -> Option<Distribution> {
+        for line in os_release.split('\n') {
+            if let Some(id) = line.strip_prefix(prefix) {
                 let id = id
                     .strip_prefix('"')
                     .unwrap_or(id)
@@ -104,5 +96,17 @@ mod linux {
         }
 
         None
+    }
+
+    pub fn detect_distribution() -> Option<Distribution> {
+        let mut file = File::open("/etc/os-release").ok()?;
+
+        const HEAD_SIZE: usize = 400;
+        let mut buf = [0; HEAD_SIZE];
+        let size = file.read(&mut buf).ok()?;
+
+        let head = std::str::from_utf8(&buf[..size]).ok()?;
+
+        find_distribution(head, "ID=").or_else(|| find_distribution(head, "ID_LIKE="))
     }
 }
