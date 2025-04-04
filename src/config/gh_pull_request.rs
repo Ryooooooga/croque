@@ -25,7 +25,7 @@ pub struct GhPullRequestConfig {
 
 impl GhPullRequestConfig {
     fn default_content() -> String {
-        "  #{{.number}}{{.state}}{{.comments}} ".to_string()
+        "  #{{.number}}{{.state}}{{.approved}}{{.comments}} ".to_string()
     }
 }
 
@@ -56,6 +56,9 @@ pub struct PullRequestIcons {
     #[serde(default = "PullRequestIcons::default_merged")]
     pub merged: String,
 
+    #[serde(default = "PullRequestIcons::default_approved")]
+    pub approved: String,
+
     #[serde(default = "PullRequestIcons::default_comment")]
     pub comment: String,
 }
@@ -77,6 +80,10 @@ impl PullRequestIcons {
         "".to_string()
     }
 
+    fn default_approved() -> String {
+        "".to_string()
+    }
+
     fn default_comment() -> String {
         " ".to_string()
     }
@@ -89,6 +96,7 @@ impl Default for PullRequestIcons {
             draft: Self::default_draft(),
             closed: Self::default_closed(),
             merged: Self::default_merged(),
+            approved: Self::default_approved(),
             comment: Self::default_comment(),
         }
     }

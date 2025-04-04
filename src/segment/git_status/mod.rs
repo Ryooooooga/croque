@@ -172,12 +172,16 @@ impl SegmentBuilder for GitStatusSegmentBuilder {
         let upstream = git_info
             .upstream
             .as_ref()
-            .and_then(|upstream| Self::build_upstream_status(upstream, &config.icons))
-            .unwrap_or_default();
+            .and_then(|upstream| Self::build_upstream_status(upstream, &config.icons));
 
         let content = self.replacer.replace_all(
             &config.content,
-            &[remote, head.as_ref(), &working_tree, &upstream],
+            &[
+                remote,
+                head.as_ref(),
+                &working_tree,
+                upstream.as_deref().unwrap_or_default(),
+            ],
         );
 
         let style = if git_info.working_tree.has_conflict() {

@@ -188,6 +188,7 @@ gh_pull_request:
     draft: ""
     closed: ""
     merged: ""
+    approved: ""
     comment: " "
   open:
     style:
@@ -209,7 +210,7 @@ gh_pull_request:
       foreground: black
       background: 141
       decoration: []
-  content: "  #{{.number}}{{.state}}{{.comments}} "
+  content: "  #{{.number}}{{.state}}{{.approved}}{{.comments}} "
 
 glab_merge_request:
   icons:
