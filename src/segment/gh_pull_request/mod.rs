@@ -12,7 +12,13 @@ pub struct GhPullRequestSegmentBuilder {
 
 impl GhPullRequestSegmentBuilder {
     pub fn new() -> Self {
-        let replacer = AhoCorasick::new(["{{.number}}", "{{.state}}", "{{.comments}}"]).unwrap();
+        let replacer = AhoCorasick::new([
+            "{{.number}}",
+            "{{.state}}",
+            "{{.approved}}",
+            "{{.comments}}",
+        ])
+        .unwrap();
         Self { replacer }
     }
 
@@ -30,6 +36,14 @@ impl GhPullRequestSegmentBuilder {
         Some(icon)
             .filter(|icon| !icon.is_empty())
             .map(|icon| format!(" {icon}"))
+    }
+
+    fn build_approved(&self, config: &GhPullRequestConfig, pr: &PullRequest) -> Option<String> {
+        if pr.is_approved {
+            Some(format!(" {}", config.icons.approved))
+        } else {
+            None
+        }
     }
 
     fn build_comments(&self, config: &GhPullRequestConfig, pr: &PullRequest) -> Option<String> {
@@ -62,12 +76,18 @@ impl SegmentBuilder for GhPullRequestSegmentBuilder {
         let pr = &ctx.gh_info?.pull_request;
 
         let number = self.build_number(config, pr);
-        let state = self.build_state(config, pr).unwrap_or_default();
-        let comments = self.build_comments(config, pr).unwrap_or_default();
+        let state = self.build_state(config, pr);
+        let approved = self.build_approved(config, pr);
+        let comments = self.build_comments(config, pr);
 
         let content = self.replacer.replace_all(
             &config.content,
-            &[number.as_str(), state.as_ref(), comments.as_ref()],
+            &[
+                number.as_str(),
+                state.as_deref().unwrap_or_default(),
+                approved.as_deref().unwrap_or_default(),
+                comments.as_deref().unwrap_or_default(),
+            ],
         );
 
         let style = self.style(config, pr).to_ansi();

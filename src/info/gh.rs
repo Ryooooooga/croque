@@ -14,6 +14,7 @@ pub struct PullRequest {
     pub state: PullRequestState,
     pub comments: i32,
     pub is_draft: bool,
+    pub is_approved: bool,
 }
 
 #[derive(Debug, Encode, Decode, Deserialize)]
@@ -26,7 +27,11 @@ pub enum PullRequestState {
 
 fn load_pull_request() -> Option<PullRequest> {
     let output = Command::new("gh")
-        .args(["pr", "view", "--json=number,state,comments,reviews,isDraft"])
+        .args([
+            "pr",
+            "view",
+            "--json=number,state,comments,reviews,reviewDecision,isDraft",
+        ])
         .output()
         .ok()?;
 
@@ -46,6 +51,8 @@ fn load_pull_request() -> Option<PullRequest> {
         state: PullRequestState,
         comments: Vec<PrComment>,
         reviews: Vec<PrReview>,
+        #[serde(rename = "reviewDecision")]
+        review_decision: String,
         #[serde(rename = "isDraft")]
         is_draft: bool,
     }
@@ -55,12 +62,14 @@ fn load_pull_request() -> Option<PullRequest> {
     let state = result.state;
     let comments = (result.comments.len() + result.reviews.len()) as i32;
     let is_draft = result.is_draft;
+    let is_approved = result.review_decision == "APPROVED";
 
     Some(PullRequest {
         number,
         state,
         comments,
         is_draft,
+        is_approved,
     })
 }
 

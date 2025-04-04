@@ -62,12 +62,16 @@ impl SegmentBuilder for GlabMergeRequestSegmentBuilder {
         let mr = &ctx.glab_info?.merge_request;
 
         let number = self.build_number(config, mr);
-        let state = self.build_state(config, mr).unwrap_or_default();
-        let comments = self.build_comments(config, mr).unwrap_or_default();
+        let state = self.build_state(config, mr);
+        let comments = self.build_comments(config, mr);
 
         let content = self.replacer.replace_all(
             &config.content,
-            &[number.as_str(), state.as_ref(), comments.as_ref()],
+            &[
+                number.as_str(),
+                state.as_deref().unwrap_or_default(),
+                comments.as_deref().unwrap_or_default(),
+            ],
         );
 
         let style = self.style(config, mr).to_ansi();
