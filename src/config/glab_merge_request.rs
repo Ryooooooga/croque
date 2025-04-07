@@ -25,7 +25,7 @@ pub struct GlabMergeRequestConfig {
 
 impl GlabMergeRequestConfig {
     fn default_content() -> String {
-        "  !{{.number}}{{.state}}{{.comments}} ".to_string()
+        "  !{{.number}}{{.state}}{{.pipeline}}{{.approved}}{{.comments}} ".to_string()
     }
 }
 
@@ -56,6 +56,24 @@ pub struct MergeRequestIcons {
     #[serde(default = "MergeRequestIcons::default_merged")]
     pub merged: String,
 
+    #[serde(default = "MergeRequestIcons::default_approved")]
+    pub approved: String,
+
+    #[serde(default = "MergeRequestIcons::default_pipeline_pending")]
+    pub pipeline_pending: String,
+
+    #[serde(default = "MergeRequestIcons::default_pipeline_running")]
+    pub pipeline_running: String,
+
+    #[serde(default = "MergeRequestIcons::default_pipeline_success")]
+    pub pipeline_success: String,
+
+    #[serde(default = "MergeRequestIcons::default_pipeline_failed")]
+    pub pipeline_failed: String,
+
+    #[serde(default = "MergeRequestIcons::default_pipeline_canceled")]
+    pub pipeline_canceled: String,
+
     #[serde(default = "MergeRequestIcons::default_comment")]
     pub comment: String,
 }
@@ -77,6 +95,30 @@ impl MergeRequestIcons {
         "".to_string()
     }
 
+    fn default_approved() -> String {
+        "".to_string()
+    }
+
+    fn default_pipeline_pending() -> String {
+        "".to_string()
+    }
+
+    fn default_pipeline_running() -> String {
+        "".to_string()
+    }
+
+    fn default_pipeline_success() -> String {
+        "".to_string()
+    }
+
+    fn default_pipeline_failed() -> String {
+        "".to_string()
+    }
+
+    fn default_pipeline_canceled() -> String {
+        "".to_string()
+    }
+
     fn default_comment() -> String {
         " ".to_string()
     }
@@ -89,6 +131,12 @@ impl Default for MergeRequestIcons {
             draft: Self::default_draft(),
             closed: Self::default_closed(),
             merged: Self::default_merged(),
+            pipeline_pending: Self::default_pipeline_pending(),
+            pipeline_running: Self::default_pipeline_running(),
+            pipeline_success: Self::default_pipeline_success(),
+            pipeline_failed: Self::default_pipeline_failed(),
+            pipeline_canceled: Self::default_pipeline_canceled(),
+            approved: Self::default_approved(),
             comment: Self::default_comment(),
         }
     }

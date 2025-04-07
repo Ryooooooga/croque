@@ -218,6 +218,12 @@ glab_merge_request:
     draft: ""
     closed: ""
     merged: ""
+    pipeline_pending: ""
+    pipeline_running: ""
+    pipeline_success: ""
+    pipeline_failed: ""
+    pipeline_canceled: ""
+    approved: ""
     comment: " "
   open:
     style:
@@ -239,7 +245,7 @@ glab_merge_request:
       foreground: black
       background: 141
       decoration: []
-  content: "  !{{.number}}{{.state}}{{.comments}} "
+  content: "  !{{.number}}{{.state}}{{.pipeline}}{{.approved}}{{.comments}} "
 
 direnv:
   icons:
