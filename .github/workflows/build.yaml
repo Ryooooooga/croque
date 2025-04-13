@@ -15,29 +15,28 @@ jobs:
         with:
           submodules: true
 
-      - name: rustup component add clippy rustfmt
-        run: rustup component add clippy rustfmt
-
-      - name: cargo fmt --verbose --all -- --check
-        run: cargo fmt --verbose --all -- --check
-
-      - name: cargo clippy --verbose --all -- -D warnings
-        run: cargo clippy --verbose --all -- -D warnings
+      - run: rustup component add clippy rustfmt
+      - run: cargo fmt --verbose --all -- --check
+      - run: cargo clippy --verbose --all -- -D warnings
 
   build:
     strategy:
       fail-fast: false
       matrix:
-        toolchain:
+        build-target:
           - stable-aarch64-apple-darwin
           - stable-x86_64-unknown-linux-gnu
         include:
-          - toolchain: stable-aarch64-apple-darwin
+          - build-target: stable-aarch64-apple-darwin
             os: macOS-latest
-          - toolchain: stable-x86_64-unknown-linux-gnu
+            toolchain: stable
+            targets: aarch64-apple-darwin
+          - build-target: stable-x86_64-unknown-linux-gnu
             os: ubuntu-latest
+            toolchain: stable
+            targets: x86_64-unknown-linux-gnu
 
-    name: Build - ${{ matrix.toolchain }}
+    name: Build - ${{ matrix.build-target }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -45,70 +44,68 @@ jobs:
         with:
           submodules: true
 
-      - name: rust-toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.toolchain }}
-          default: true
+          targets: ${{ matrix.targets }}
 
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --verbose --all --all-targets --all-features
-
-      - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --verbose --all --all-targets --all-features
+      - run: cargo build --verbose --all --target=${{ matrix.targets }} --all-features
+      - run: cargo test --verbose --all --target=${{ matrix.targets }} --all-features
 
   release-build:
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - aarch64-apple-darwin
-          - aarch64-unknown-linux-gnu
+        build-target:
+          - stable-x86_64-apple-darwin
+          - stable-aarch64-apple-darwin
+          - stable-x86_64-unknown-linux-gnu
+          - stable-aarch64-unknown-linux-gnu
         include:
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-          - target: aarch64-apple-darwin
+          - build-target: stable-x86_64-apple-darwin
             os: macOS-latest
-          - target: aarch64-unknown-linux-gnu
+            toolchain: stable
+            targets: x86_64-apple-darwin
+          - build-target: stable-aarch64-apple-darwin
+            os: macOS-latest
+            toolchain: stable
+            targets: aarch64-apple-darwin
+          - build-target: stable-x86_64-unknown-linux-gnu
             os: ubuntu-latest
+            toolchain: stable
+            targets: x86_64-unknown-linux-gnu
+          - build-target: stable-aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            toolchain: stable
+            targets: aarch64-unknown-linux-gnu
 
-    name: Release build - ${{ matrix.target }}
+    name: Release build - ${{ matrix.build-target }}
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
           fetch-depth: 0
 
-      - name: rust-toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          default: true
+          toolchain: ${{ matrix.toolchain }}
+          targets: ${{ matrix.targets }}
 
-      - name: Build
-        uses: actions-rs/cargo@v1
+      - uses: houseabsolute/actions-rust-cross@v1
         with:
           command: build
-          args: --release --all-features --target=${{ matrix.target }}
-          use-cross: true
+          target: ${{ matrix.targets }}
+          args: "--locked --release"
+          strip: true
 
       - name: Archive an executable
         id: asset
         run: |
           EXE=
           ARCHIVE=.tar.gz
-          if ${{ contains(matrix.target, 'pc-windows') }}; then
+          if ${{ contains(matrix.targets, 'pc-windows') }}; then
             EXE=.exe
             ARCHIVE=.zip
           fi
@@ -116,7 +113,7 @@ jobs:
           NAME="${GITHUB_REPOSITORY#*/}"
           EXECUTABLE="${NAME}${EXE}"
           ASSET="${NAME}${ARCHIVE}"
-          mv "./target/${{ matrix.target }}/release/${EXECUTABLE}" "./${EXECUTABLE}"
+          mv "./target/${{ matrix.targets }}/release/${EXECUTABLE}" "./${EXECUTABLE}"
 
           if [[ "${ARCHIVE}" = ".tar.gz" ]]; then
             tar czfv "./${ASSET}" "${EXECUTABLE}"
@@ -129,7 +126,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-${{ matrix.target }}
+          name: artifact-${{ matrix.targets }}
           path: ${{ steps.asset.outputs.asset }}
 
   release:
@@ -154,12 +151,14 @@ jobs:
           NAME=${GITHUB_REPOSITORY#*/}
           TAG=${GITHUB_REF#refs/tags/}
 
-          mv "artifact-x86_64-unknown-linux-gnu/${NAME}.tar.gz" "./${NAME}-${TAG}-x86_64-unknown-linux-gnu.tar.gz"
+          mv "artifact-x86_64-apple-darwin/${NAME}.tar.gz" "./${NAME}-${TAG}-x86_64-apple-darwin.tar.gz"
           mv "artifact-aarch64-apple-darwin/${NAME}.tar.gz" "./${NAME}-${TAG}-aarch64-apple-darwin.tar.gz"
+          mv "artifact-x86_64-unknown-linux-gnu/${NAME}.tar.gz" "./${NAME}-${TAG}-x86_64-unknown-linux-gnu.tar.gz"
           mv "artifact-aarch64-unknown-linux-gnu/${NAME}.tar.gz" "./${NAME}-${TAG}-aarch64-unknown-linux-gnu.tar.gz"
 
-          echo "asset-x86_64-unknown-linux-gnu=${NAME}-${TAG}-x86_64-unknown-linux-gnu.tar.gz" >>$GITHUB_OUTPUT
+          echo "asset-x86_64-apple-darwin=${NAME}-${TAG}-x86_64-apple-darwin.tar.gz" >>$GITHUB_OUTPUT
           echo "asset-aarch64-apple-darwin=${NAME}-${TAG}-aarch64-apple-darwin.tar.gz" >>$GITHUB_OUTPUT
+          echo "asset-x86_64-unknown-linux-gnu=${NAME}-${TAG}-x86_64-unknown-linux-gnu.tar.gz" >>$GITHUB_OUTPUT
           echo "asset-aarch64-unknown-linux-gnu=${NAME}-${TAG}-aarch64-unknown-linux-gnu.tar.gz" >>$GITHUB_OUTPUT
 
       - name: Checksum
@@ -179,10 +178,12 @@ jobs:
           repo="https://github.com/${{ github.repository }}"
           tag="${GITHUB_REF#refs/tags/}"
           version="${tag#v}"
-          x86_64_linux="${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}"
-          x86_64_linux_sha256="$(sha256sum "${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}" | awk '{ print $1 }')"
+          x86_64_darwin="${{ steps.asset.outputs.asset-x86_64-apple-darwin }}"
+          x86_64_darwin_sha256="$(sha256sum "${{ steps.asset.outputs.asset-x86_64-apple-darwin }}" | awk '{ print $1 }')"
           aarch64_darwin="${{ steps.asset.outputs.asset-aarch64-apple-darwin }}"
           aarch64_darwin_sha256="$(sha256sum "${{ steps.asset.outputs.asset-aarch64-apple-darwin }}" | awk '{ print $1 }')"
+          x86_64_linux="${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}"
+          x86_64_linux_sha256="$(sha256sum "${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}" | awk '{ print $1 }')"
           aarch64_linux="${{ steps.asset.outputs.asset-aarch64-unknown-linux-gnu }}"
           aarch64_linux_sha256="$(sha256sum "${{ steps.asset.outputs.asset-aarch64-unknown-linux-gnu }}" | awk '{ print $1 }')"
           envsubst <formula.rb.tmpl >croque.rb
@@ -205,8 +206,9 @@ jobs:
           generate_release_notes: true
           files: |
             checksum.txt
-            ${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}
+            ${{ steps.asset.outputs.asset-x86_64-apple-darwin }}
             ${{ steps.asset.outputs.asset-aarch64-apple-darwin }}
+            ${{ steps.asset.outputs.asset-x86_64-unknown-linux-gnu }}
             ${{ steps.asset.outputs.asset-aarch64-unknown-linux-gnu }}
 
   publish:
