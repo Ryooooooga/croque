@@ -23,20 +23,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build-target:
-          - stable-aarch64-apple-darwin
-          - stable-x86_64-unknown-linux-gnu
-        include:
-          - build-target: stable-aarch64-apple-darwin
-            os: macOS-latest
-            toolchain: stable
-            targets: aarch64-apple-darwin
-          - build-target: stable-x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            toolchain: stable
-            targets: x86_64-unknown-linux-gnu
+        os:
+          - macOS-latest
+          - ubuntu-latest
 
-    name: Build - ${{ matrix.build-target }}
+    name: Build - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -44,43 +35,25 @@ jobs:
         with:
           submodules: true
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ matrix.toolchain }}
-          targets: ${{ matrix.targets }}
-
-      - run: cargo build --verbose --all --target=${{ matrix.targets }} --all-features
-      - run: cargo test --verbose --all --target=${{ matrix.targets }} --all-features
+      - run: cargo build --verbose --all --all-targets --all-features
+      - run: cargo test --verbose --all --all-targets --all-features
 
   release-build:
     strategy:
       fail-fast: false
       matrix:
-        build-target:
-          - stable-x86_64-apple-darwin
-          - stable-aarch64-apple-darwin
-          - stable-x86_64-unknown-linux-gnu
-          - stable-aarch64-unknown-linux-gnu
-        include:
-          - build-target: stable-x86_64-apple-darwin
+        platform:
+          - target: x86_64-apple-darwin
             os: macOS-latest
-            toolchain: stable
-            targets: x86_64-apple-darwin
-          - build-target: stable-aarch64-apple-darwin
+          - target: aarch64-apple-darwin
             os: macOS-latest
-            toolchain: stable
-            targets: aarch64-apple-darwin
-          - build-target: stable-x86_64-unknown-linux-gnu
+          - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            toolchain: stable
-            targets: x86_64-unknown-linux-gnu
-          - build-target: stable-aarch64-unknown-linux-gnu
+          - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
-            toolchain: stable
-            targets: aarch64-unknown-linux-gnu
 
-    name: Release build - ${{ matrix.build-target }}
-    runs-on: ${{ matrix.os }}
+    name: Release build - ${{ matrix.platform.target }}
+    runs-on: ${{ matrix.platform.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -90,13 +63,12 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: ${{ matrix.toolchain }}
-          targets: ${{ matrix.targets }}
+          targets: ${{ matrix.platform.target }}
 
       - uses: houseabsolute/actions-rust-cross@v1
         with:
           command: build
-          target: ${{ matrix.targets }}
+          target: ${{ matrix.platform.target }}
           args: "--locked --release"
           strip: true
 
@@ -105,7 +77,7 @@ jobs:
         run: |
           EXE=
           ARCHIVE=.tar.gz
-          if ${{ contains(matrix.targets, 'pc-windows') }}; then
+          if ${{ contains(matrix.platform.target, 'pc-windows') }}; then
             EXE=.exe
             ARCHIVE=.zip
           fi
@@ -113,7 +85,7 @@ jobs:
           NAME="${GITHUB_REPOSITORY#*/}"
           EXECUTABLE="${NAME}${EXE}"
           ASSET="${NAME}${ARCHIVE}"
-          mv "./target/${{ matrix.targets }}/release/${EXECUTABLE}" "./${EXECUTABLE}"
+          mv "./target/${{ matrix.platform.target }}/release/${EXECUTABLE}" "./${EXECUTABLE}"
 
           if [[ "${ARCHIVE}" = ".tar.gz" ]]; then
             tar czfv "./${ASSET}" "${EXECUTABLE}"
@@ -126,7 +98,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-${{ matrix.targets }}
+          name: artifact-${{ matrix.platform.target }}
           path: ${{ steps.asset.outputs.asset }}
 
   release:
