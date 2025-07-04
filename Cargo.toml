@@ -6,7 +6,7 @@ description = "Fast and customizable shell prompt"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/Ryooooooga/croque"
-edition = "2021"
+edition = "2024"
 keywords = ["bash", "fish", "shell", "prompt", "zsh"]
 
 [dependencies]
