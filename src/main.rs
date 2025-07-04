@@ -5,7 +5,7 @@ mod segment;
 mod shell;
 
 use clap::Parser;
-use command::{run, Command};
+use command::{Command, run};
 
 fn main() {
     let cmd = Command::parse();

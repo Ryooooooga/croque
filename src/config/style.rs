@@ -1,7 +1,7 @@
 use nu_ansi_term::{Color as ANSIColor, Style as ANSIStyle};
 use serde::{
-    de::{self, Visitor},
     Deserialize, Deserializer,
+    de::{self, Visitor},
 };
 use std::fmt;
 

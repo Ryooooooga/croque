@@ -3,9 +3,9 @@ use crate::{
     config::Config,
     info::{
         self,
-        gh::{load_gh_info, GhInfo},
-        git::{load_git_info, GitInfo},
-        glab::{load_glab_info, GlabInfo},
+        gh::{GhInfo, load_gh_info},
+        git::{GitInfo, load_git_info},
+        glab::{GlabInfo, load_glab_info},
     },
     segment::{self, Context},
 };

@@ -17,7 +17,7 @@ impl OsSegmentBuilder {
 impl SegmentBuilder for OsSegmentBuilder {
     #[cfg(target_os = "linux")]
     fn build(&self, ctx: &Context) -> Option<Segment> {
-        use self::linux::{detect_distribution, Distribution};
+        use self::linux::{Distribution, detect_distribution};
 
         let c = &ctx.config.os;
 
