@@ -9,7 +9,7 @@ pub enum Shell {
 }
 
 impl Shell {
-    pub fn control<C: fmt::Display>(&self, c: C) -> PromptControl<C> {
+    pub fn control<C: fmt::Display>(&self, c: C) -> PromptControl<'_, C> {
         PromptControl::new(self, c)
     }
 
