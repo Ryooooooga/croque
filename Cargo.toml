@@ -10,7 +10,7 @@ edition = "2024"
 keywords = ["bash", "fish", "shell", "prompt", "zsh"]
 
 [dependencies]
-aho-corasick = "1.0"
+aho-corasick = "1.1"
 nu-ansi-term = "0.50"
 base64 = "0.22"
 bincode = "2.0"
