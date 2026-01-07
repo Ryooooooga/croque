@@ -16,8 +16,7 @@ fn decode_git_info(encoded_git_info: &str) -> Option<GitInfo> {
     }
 
     let bytes = info::decode_base64(encoded_git_info).ok()?;
-    let (git_info, _): (GitInfo, usize) =
-        bincode::decode_from_slice(&bytes, bincode::config::standard()).ok()?;
+    let git_info: GitInfo = bitcode::decode(&bytes).ok()?;
 
     Some(git_info)
 }
@@ -28,8 +27,7 @@ fn decode_gh_info(encoded_gh_info: &str) -> Option<GhInfo> {
     }
 
     let bytes = info::decode_base64(encoded_gh_info).ok()?;
-    let (gh_info, _): (GhInfo, usize) =
-        bincode::decode_from_slice(&bytes, bincode::config::standard()).ok()?;
+    let gh_info: GhInfo = bitcode::decode(&bytes).ok()?;
 
     Some(gh_info)
 }
@@ -40,8 +38,7 @@ fn decode_glab_info(encoded_glab_info: &str) -> Option<GlabInfo> {
     }
 
     let bytes = info::decode_base64(encoded_glab_info).ok()?;
-    let (glab_info, _): (GlabInfo, usize) =
-        bincode::decode_from_slice(&bytes, bincode::config::standard()).ok()?;
+    let glab_info: GlabInfo = bitcode::decode(&bytes).ok()?;
 
     Some(glab_info)
 }

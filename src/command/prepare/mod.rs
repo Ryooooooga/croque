@@ -6,17 +6,17 @@ use crate::{
 
 fn prepare_git_info() -> Option<Vec<u8>> {
     let git_info = load_git_info()?;
-    bincode::encode_to_vec(&git_info, bincode::config::standard()).ok()
+    Some(bitcode::encode(&git_info))
 }
 
 fn prepare_gh_info() -> Option<Vec<u8>> {
     let gh_info = load_gh_info()?;
-    bincode::encode_to_vec(&gh_info, bincode::config::standard()).ok()
+    Some(bitcode::encode(&gh_info))
 }
 
 fn prepare_glab_info() -> Option<Vec<u8>> {
     let glab_info = load_glab_info()?;
-    bincode::encode_to_vec(&glab_info, bincode::config::standard()).ok()
+    Some(bitcode::encode(&glab_info))
 }
 
 pub fn run(args: &PrepareArgs) {
