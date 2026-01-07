@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use bincode::{Decode, Encode};
+use bitcode::{Decode, Encode};
 use serde::Deserialize;
 
 #[derive(Debug, Encode, Decode)]

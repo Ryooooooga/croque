@@ -2,7 +2,7 @@ mod shrink;
 
 use self::shrink::shrink_path;
 use super::{Context, Segment, SegmentBuilder};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn current_dir() -> Option<PathBuf> {
     std::env::var_os("PWD")
@@ -43,7 +43,7 @@ impl SegmentBuilder for PathSegmentBuilder<'_> {
                 shrink_path(
                     &cwd,
                     home.as_deref(),
-                    project_root,
+                    project_root.map(Path::new),
                     &config.aliases,
                     config.shrink.enabled,
                     config.shrink.length,

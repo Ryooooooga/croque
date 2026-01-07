@@ -1,10 +1,9 @@
-use bincode::{Decode, Encode};
+use bitcode::{Decode, Encode};
 use git2::{Reference, Repository, Status, StatusOptions};
-use std::path::PathBuf;
 
 #[derive(Debug, Encode, Decode)]
 pub struct GitInfo {
-    pub workdir: Option<PathBuf>,
+    pub workdir: Option<String>,
     pub head: Head,
     pub working_tree: WorkingTreeStatus,
     pub upstream: Option<UpstreamStatus>,
@@ -209,7 +208,7 @@ pub fn load_git_info() -> Option<GitInfo> {
     let current_dir = std::env::current_dir().ok()?;
     let repo = Repository::discover(current_dir).ok()?;
 
-    let workdir = repo.workdir().map(PathBuf::from);
+    let workdir = repo.workdir().map(|p| p.to_string_lossy().to_string());
 
     let head_ref = repo.head().ok();
 

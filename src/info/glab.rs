@@ -1,4 +1,4 @@
-use bincode::{Decode, Encode};
+use bitcode::{Decode, Encode};
 use serde::Deserialize;
 use std::process::Command;
 
