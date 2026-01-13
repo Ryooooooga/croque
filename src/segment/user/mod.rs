@@ -2,15 +2,14 @@ use aho_corasick::AhoCorasick;
 
 use super::{Context, Segment, SegmentBuilder};
 
-#[cfg(target_os = "windows")]
-mod users {
-    pub fn get_current_username() -> Option<std::ffi::OsString> {
-        std::env::var_os("USERNAME")
-    }
+#[cfg(not(target_os = "windows"))]
+fn username() -> Option<String> {
+    uzers::get_current_username().map(|username| username.to_string_lossy().to_string())
 }
 
+#[cfg(target_os = "windows")]
 fn username() -> Option<String> {
-    users::get_current_username().map(|username| username.to_string_lossy().to_string())
+    std::env::var_os("USERNAME").map(|username| username.to_string_lossy().to_string())
 }
 
 fn hostname() -> Option<String> {
