@@ -35,6 +35,12 @@ jobs:
         with:
           submodules: true
 
+      - run: brew install fish
+        if: ${{ matrix.os == 'macOS-latest' }}
+
+      - run: sudo apt-get install fish zsh
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+
       - run: cargo build --verbose --all --all-targets --all-features
       - run: cargo test --verbose --all --all-targets --all-features
 

@@ -26,4 +26,8 @@ thiserror = "2.0"
 unicode-width = "0.2"
 
 [target."cfg(not(windows))".dependencies]
-uzers = "0.12.2"
+uzers = "0.12"
+
+[dev-dependencies]
+insta = "1.46"
+tempfile = "3.24"

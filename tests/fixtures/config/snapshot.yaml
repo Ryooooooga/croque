@@ -1,0 +1,293 @@
+os:
+  alpine:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  amazon:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  arch:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  centos:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  debian:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  gentooo:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  nix:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  raspbian:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  ubuntu:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  linux:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  mac:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+  windows:
+    style:
+      foreground: white
+      background: 33
+      decoration: []
+    content: " X "
+
+user:
+  style:
+    foreground: white
+    background: dark_gray
+    decoration: []
+  content: " $USER@$HOST "
+
+path:
+  normal:
+    style:
+      foreground: black
+      background: blue
+      decoration: []
+  error:
+    style:
+      foreground: black
+      background: red
+      decoration: []
+  shrink:
+    enabled: true
+    length: 1
+  aliases:
+    - path: ~
+      alias: ~
+  content: " {{.path}} "
+
+status:
+  icons:
+    success: "✓"
+    error: ""
+    root: ""
+    jobs: ""
+  success:
+    style:
+      foreground: green
+      background: white
+      decoration: []
+  error:
+    style:
+      foreground: white
+      background: red
+      decoration: []
+    display_exit_code: true
+  content: " {{.exit_status}}{{.root}}{{.jobs}} "
+
+duration:
+  style:
+    foreground: white
+    background: 242
+    decoration: []
+  content: " 󰔛 {{.duration}} "
+
+time:
+  format: "%H:%M:%S" # https://docs.rs/chrono/0.4.23/chrono/format/strftime/index.html
+  utc: false
+  style:
+    foreground: dark_gray
+    background: white
+    decoration: []
+  content: "  XX:XX:XX "
+
+git_status:
+  icons:
+    branch: ""
+    tag: ""
+    commit: ""
+    modified: "…"
+    added: "+"
+    deleted: "-"
+    renamed: "→"
+    conflicted: ""
+    behind: ""
+    ahead: ""
+  clean:
+    style:
+      foreground: black
+      background: green
+      decoration: []
+  unstaged:
+    style:
+      foreground: black
+      background: yellow
+      decoration: []
+  staged:
+    style:
+      foreground: black
+      background: green
+      decoration: []
+  conflicted:
+    style:
+      foreground: black
+      background: red
+      decoration: []
+  remotes:
+    - pattern: github.com
+      icon: " "
+    - pattern: ""
+      icon: " "
+  display_master: true
+  branch_aliases: []
+  commit_hash_length: 7
+  content: " {{.remote}}{{.head}}{{.working_tree}}{{.upstream}} "
+
+git_user:
+  style:
+    foreground: black
+    background: 117
+    decoration: []
+  content: "  {{.name}} "
+
+gh_pull_request:
+  icons:
+    open: ""
+    draft: ""
+    closed: ""
+    merged: ""
+    approved: ""
+    comment: " "
+  open:
+    style:
+      foreground: black
+      background: 214
+      decoration: []
+  draft:
+    style:
+      foreground: black
+      background: 249
+      decoration: []
+  closed:
+    style:
+      foreground: black
+      background: 196
+      decoration: []
+  merged:
+    style:
+      foreground: black
+      background: 141
+      decoration: []
+  content: "  #{{.number}}{{.state}}{{.approved}}{{.comments}} "
+
+glab_merge_request:
+  icons:
+    open: ""
+    draft: ""
+    closed: ""
+    merged: ""
+    pipeline_pending: ""
+    pipeline_running: ""
+    pipeline_success: ""
+    pipeline_failed: ""
+    pipeline_canceled: ""
+    approved: ""
+    comment: " "
+  open:
+    style:
+      foreground: black
+      background: 214
+      decoration: []
+  draft:
+    style:
+      foreground: black
+      background: 249
+      decoration: []
+  closed:
+    style:
+      foreground: black
+      background: 196
+      decoration: []
+  merged:
+    style:
+      foreground: black
+      background: 141
+      decoration: []
+  content: "  !{{.number}}{{.state}}{{.pipeline}}{{.approved}}{{.comments}} "
+
+direnv:
+  icons:
+    loaded: ""
+    found: ""
+    disallowed: ""
+  loaded:
+    style:
+      foreground: white
+      background: "#96a1b5"
+      decoration: []
+  found:
+    style:
+      foreground: white
+      background: 243
+      decoration: []
+  disallowed:
+    style:
+      foreground: white
+      background: 243
+      decoration: []
+  content: " {{.status}} "
+
+segment_separators:
+    solid_left: ""
+    wire_left: ""
+    solid_right: ""
+    wire_right: ""
+
+segments:
+  - left:
+      - os
+      - user
+      - path
+      - git_status
+      - gh_pull_request
+      - glab_merge_request
+      - git_user
+    right:
+      - time
+  - left:
+      - direnv
+      - status
+      - duration
+    right:
