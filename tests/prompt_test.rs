@@ -53,6 +53,21 @@ impl PromptInput {
         self.duration = duration;
         self
     }
+
+    fn data_git(&mut self, data_git: &str) -> &mut Self {
+        self.data_git = Some(data_git.to_string());
+        self
+    }
+
+    fn data_gh(&mut self, data_gh: &str) -> &mut Self {
+        self.data_gh = Some(data_gh.to_string());
+        self
+    }
+
+    fn data_glab(&mut self, data_glab: &str) -> &mut Self {
+        self.data_glab = Some(data_glab.to_string());
+        self
+    }
 }
 
 fn run_prompt(env: &TestEnv, shell: &str, input: &PromptInput, dir: &str) -> String {
@@ -70,18 +85,17 @@ fn run_prompt(env: &TestEnv, shell: &str, input: &PromptInput, dir: &str) -> Str
         &input.width.to_string(),
     ]);
     if let Some(data_git) = &input.data_git {
-        cmd.args(&["--data-git", data_git]);
+        cmd.args(&["--data.git", data_git]);
     }
     if let Some(data_gh) = &input.data_gh {
-        cmd.args(&["--data-gh", data_gh]);
+        cmd.args(&["--data.gh", data_gh]);
     }
     if let Some(data_glab) = &input.data_glab {
-        cmd.args(&["--data-glab", data_glab]);
+        cmd.args(&["--data.glab", data_glab]);
     }
 
     let output = cmd
         .env("HOME", env.path())
-        .env("HOST", "host")
         .env("CROQUE_CONFIG_FILE", &input.config)
         .output()
         .unwrap();
@@ -92,6 +106,21 @@ fn run_prompt(env: &TestEnv, shell: &str, input: &PromptInput, dir: &str) -> Str
     assert_ne!(stdout, "");
 
     stdout
+}
+
+fn run_prepare(env: &TestEnv, source: &str, dir: &str) -> String {
+    let output = env
+        .command(dir)
+        .args(&["prepare", source])
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    assert!(output.status.success(), "stderr: {stderr}");
+    assert_eq!(stderr, "");
+    assert_ne!(stdout, "");
+
+    stdout.trim().to_string()
 }
 
 mod direnv {
@@ -191,7 +220,153 @@ mod git_status {
 }
 
 mod git_user {
-    // TODO
+    use super::*;
+
+    const ICON: &str = "  ";
+
+    fn assert_user_segment_exists(output: &str, username: &str) {
+        assert!(output.contains(&format!("{ICON}{username}")), "{output}");
+    }
+
+    fn assert_user_segment_not_exists(output: &str) {
+        assert!(!output.contains(ICON), "{output}");
+    }
+
+    #[test]
+    fn no_user() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_user_segment_not_exists(&output);
+        }
+    }
+
+    #[test]
+    fn user() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        git.config_set("user.name", "John Doe");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_user_segment_exists(&output, "John Doe");
+        }
+    }
+
+    #[test]
+    fn prepare_no_user() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+
+        let data_git = run_prepare(env, "git", ".");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new().data_git(&data_git), ".");
+
+            assert_user_segment_not_exists(&output);
+        }
+    }
+
+    #[test]
+    fn prepare_user() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        git.config_set("user.name", "John Doe");
+
+        let data_git = run_prepare(env, "git", ".");
+
+        git.config_set("user.name", "Jane Doe");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new().data_git(&data_git), ".");
+
+            assert_user_segment_exists(&output, "John Doe");
+        }
+    }
+
+    #[test]
+    fn prepare_empty() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        git.config_set("user.name", "John Doe");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new().data_git(""), ".");
+
+            assert_user_segment_not_exists(&output);
+        }
+    }
+
+    #[test]
+    fn snapshot() {
+        fn setup_none(_env: &TestEnv, _cfg: &mut PromptInput) {}
+
+        fn setup_git_no_user(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+        }
+
+        fn setup_git_user(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            git.config_set("user.name", "John Doe");
+        }
+
+        fn setup_git_user_prepare(env: &TestEnv, cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            git.config_set("user.name", "John Doe");
+
+            cfg.data_git(&run_prepare(env, "git", "."));
+        }
+
+        fn setup_no_data(env: &TestEnv, cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            git.config_set("user.name", "John Doe");
+
+            cfg.data_git("");
+        }
+
+        for shell in SHELLS {
+            type SetupFn = fn(&TestEnv, &mut PromptInput);
+            for (testname, setup) in [
+                ("none", setup_none as SetupFn),
+                ("git_no_user", setup_git_no_user as SetupFn),
+                ("git_user", setup_git_user as SetupFn),
+                ("git_user_prepare", setup_git_user_prepare as SetupFn),
+                ("no_data", setup_no_data as SetupFn),
+            ] {
+                let env = &TestEnv::new();
+
+                let mut cfg = PromptInput::new();
+                cfg.snapshot_config();
+                setup(env, &mut cfg);
+
+                let output = run_prompt(env, shell, &cfg, ".");
+
+                insta::assert_snapshot!(format!("{shell}_{}", testname), output);
+            }
+        }
+    }
 }
 
 mod glab_merge_request {
