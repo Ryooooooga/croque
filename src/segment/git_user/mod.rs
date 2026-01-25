@@ -8,6 +8,9 @@ impl SegmentBuilder for GitUserSegmentBuilder {
         let config = &ctx.config.git_user;
 
         let user_name = ctx.git_info?.user.as_ref()?;
+        if user_name.is_empty() {
+            return None;
+        }
 
         let content = config.content.replace("{{.name}}", user_name);
         let style = config.style.to_ansi();
