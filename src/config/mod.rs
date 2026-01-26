@@ -1,5 +1,6 @@
 pub mod direnv;
 pub mod duration;
+pub mod gh_actions;
 pub mod gh_pull_request;
 pub mod git_status;
 pub mod git_user;
@@ -10,6 +11,8 @@ pub mod status;
 pub mod style;
 pub mod time;
 pub mod user;
+
+use crate::config::gh_actions::GhActionsConfig;
 
 use self::{
     duration::DurationConfig, gh_pull_request::GhPullRequestConfig, git_status::GitStatusConfig,
@@ -52,6 +55,9 @@ pub struct Config {
 
     #[serde(default)]
     pub git_user: GitUserConfig,
+
+    #[serde(default)]
+    pub gh_actions: GhActionsConfig,
 
     #[serde(default)]
     pub gh_pull_request: GhPullRequestConfig,
@@ -149,6 +155,7 @@ impl Default for Config {
             time: Default::default(),
             git_status: Default::default(),
             git_user: Default::default(),
+            gh_actions: Default::default(),
             gh_pull_request: Default::default(),
             glab_merge_request: Default::default(),
             direnv: Default::default(),
@@ -223,6 +230,7 @@ pub enum SegmentKind {
     GitStatus,
     GitUser,
     GhPullRequest,
+    GhActions,
     GlabMergeRequest,
     Direnv,
 }
