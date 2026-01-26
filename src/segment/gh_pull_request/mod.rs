@@ -73,7 +73,7 @@ impl Default for GhPullRequestSegmentBuilder {
 impl SegmentBuilder for GhPullRequestSegmentBuilder {
     fn build(&self, ctx: &Context) -> Option<Segment> {
         let config = &ctx.config.gh_pull_request;
-        let pr = &ctx.gh_info?.pull_request;
+        let pr = &ctx.gh_info?.pull_request.as_ref()?;
 
         let number = self.build_number(config, pr);
         let state = self.build_state(config, pr);

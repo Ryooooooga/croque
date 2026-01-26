@@ -1,6 +1,5 @@
 ---
 source: tests/config_test.rs
-assertion_line: 17
 expression: stdout
 ---
 os:
@@ -187,6 +186,40 @@ git_user:
     decoration: []
   content: "  {{.name}} "
 
+gh_actions:
+  icons:
+    in_progress: ""
+    success: ""
+    failure: ""
+    cancelled: ""
+    skipped: ""
+  in_progress:
+    style:
+      foreground: black
+      background: 226
+      decoration: []
+  success:
+    style:
+      foreground: white
+      background: 34
+      decoration: []
+  failure:
+    style:
+      foreground: white
+      background: 196
+      decoration: []
+  cancelled:
+    style:
+      foreground: white
+      background: 244
+      decoration: []
+  skipped:
+    style:
+      foreground: white
+      background: 244
+      decoration: []
+  content: " {{.status}} "
+
 gh_pull_request:
   icons:
     open: ""
@@ -287,6 +320,7 @@ segments:
       - path
       - git_status
       - gh_pull_request
+      - gh_actions
       - glab_merge_request
       - git_user
     right:
