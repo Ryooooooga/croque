@@ -103,6 +103,17 @@ mod duration {
 
     const ICON: &str = " 󰔛 ";
 
+    fn assert_duration_segment_exists(output: &str, expected_duration_text: &str) {
+        assert!(
+            output.contains(&format!("{ICON}{expected_duration_text}")),
+            "{output}"
+        );
+    }
+
+    fn assert_duration_segment_not_exists(output: &str) {
+        assert!(!output.contains(ICON), "{output}");
+    }
+
     #[test]
     fn zero() {
         let env = &TestEnv::new();
@@ -110,7 +121,7 @@ mod duration {
         for shell in SHELLS {
             let output = run_prompt(env, shell, PromptInput::new().duration(0.0), ".");
 
-            assert!(!output.contains(ICON), "{shell}");
+            assert_duration_segment_not_exists(&output);
         }
     }
 
@@ -122,23 +133,19 @@ mod duration {
         const MIN: f64 = 1.0 * 60.0;
         for shell in SHELLS {
             for (duration, expected_text) in [
-                (0.000_000_1, " 0μs"),
-                (0.000_001, " 1μs"),
-                (0.000_010, " 10μs"),
-                (0.000_100, " 100μs"),
-                (0.001_234, " 1.23ms"),
-                (0.012_345, " 12.3ms"),
+                (0.000_000_1, "0μs"),
+                (0.000_001, "1μs"),
+                (0.000_010, "10μs"),
+                (0.000_100, "100μs"),
+                (0.001_234, "1.23ms"),
+                (0.012_345, "12.3ms"),
                 (1.5, "1.50s"),
                 (1.0 * MIN + 5.0, "1m 5s"),
                 (1.0 * HOUR + 2.0 * MIN + 3.0, "1h 2m 3s"),
             ] {
                 let output = run_prompt(env, shell, PromptInput::new().duration(duration), ".");
 
-                assert!(output.contains(ICON), "{shell} {duration}: {output}");
-                assert!(
-                    output.contains(expected_text),
-                    "{shell} {duration}: {output} expected: {expected_text}"
-                );
+                assert_duration_segment_exists(&output, expected_text);
             }
         }
     }
@@ -206,6 +213,33 @@ mod status {
     const ICON_ERROR: &str = "";
     const ICON_JOBS: &str = "";
 
+    fn assert_contains_success_status(output: &str) {
+        assert!(output.contains(&format!(" {ICON_SUCCESS} ")), "{output}");
+    }
+
+    fn assert_not_contains_success_status(output: &str) {
+        assert!(!output.contains(&format!(" {ICON_SUCCESS} ")), "{output}");
+    }
+
+    fn assert_contains_error_status(output: &str, exit_status: i32) {
+        assert!(
+            output.contains(&format!(" {ICON_ERROR} {exit_status} ")),
+            "{output}"
+        );
+    }
+
+    fn assert_not_contains_error_status(output: &str) {
+        assert!(!output.contains(&format!(" {ICON_ERROR} ")), "{output}");
+    }
+
+    fn assert_contains_jobs_status(output: &str) {
+        assert!(output.contains(&format!(" {ICON_JOBS} ")), "{output}");
+    }
+
+    fn assert_not_contains_jobs_status(output: &str) {
+        assert!(!output.contains(&format!(" {ICON_JOBS} ")), "{output}");
+    }
+
     #[test]
     fn status_success() {
         let env = &TestEnv::new();
@@ -213,14 +247,8 @@ mod status {
         for shell in SHELLS {
             let output = run_prompt(env, shell, &PromptInput::new().exit_status(0), ".");
 
-            assert!(
-                output.contains(&format!(" {ICON_SUCCESS} ")),
-                "{shell}: {output}"
-            );
-            assert!(
-                !output.contains(ICON_ERROR),
-                "{shell}: unexpected error icon: {output}"
-            );
+            assert_contains_success_status(&output);
+            assert_not_contains_error_status(&output);
         }
     }
 
@@ -237,14 +265,8 @@ mod status {
                     ".",
                 );
 
-                assert!(
-                    output.contains(&format!(" {ICON_ERROR} {exit_status} ")),
-                    "{shell} exit status {exit_status}: {output}"
-                );
-                assert!(
-                    !output.contains(ICON_SUCCESS),
-                    "{shell} exit status {exit_status}: unexpected success icon: {output}"
-                );
+                assert_contains_error_status(&output, exit_status);
+                assert_not_contains_success_status(&output);
             }
         }
     }
@@ -256,10 +278,7 @@ mod status {
         for shell in SHELLS {
             let output = run_prompt(env, shell, &PromptInput::new().jobs(0), ".");
 
-            assert!(
-                !output.contains(&format!(" {ICON_JOBS} ")),
-                "{shell} jobs: {output}"
-            );
+            assert_not_contains_jobs_status(&output);
         }
     }
 
@@ -271,10 +290,7 @@ mod status {
             for jobs in [1, 2, 3] {
                 let output = run_prompt(env, shell, &PromptInput::new().jobs(jobs), ".");
 
-                assert!(
-                    output.contains(&format!(" {ICON_JOBS} ")),
-                    "{shell} jobs {jobs}: {output}"
-                );
+                assert_contains_jobs_status(&output);
             }
         }
     }
@@ -307,9 +323,31 @@ mod status {
 mod time {
     use super::*;
 
-    use chrono::Timelike;
+    use chrono::{DateTime, TimeZone, Timelike};
 
     const ICON: &str = "  ";
+
+    fn assert_time_segment_exists<Tz: TimeZone>(output: &str, now: DateTime<Tz>, eps_sec: i64) {
+        let icon_index = output.find(ICON).unwrap();
+        let time_index = icon_index + ICON.len();
+        let time_text = &output[time_index..time_index + 8]; // HH:MM:SS
+        let time_segments: Vec<_> = time_text.split(":").collect();
+        assert_eq!(time_segments.len(), 3);
+
+        let hour = time_segments[0].parse::<u32>().unwrap();
+        let min = time_segments[1].parse::<u32>().unwrap();
+        let sec = time_segments[2].parse::<u32>().unwrap();
+        let time = now
+            .with_hour(hour)
+            .and_then(|t| t.with_minute(min))
+            .and_then(|t| t.with_second(sec))
+            .unwrap();
+        let diff = (time - now).num_seconds().abs();
+        assert!(
+            diff < eps_sec,
+            "time difference is too large: {diff} seconds"
+        );
+    }
 
     #[test]
     fn time() {
@@ -318,32 +356,24 @@ mod time {
         for shell in SHELLS {
             let output = run_prompt(env, shell, &PromptInput::new(), ".");
 
-            let icon_index = output.find(ICON).unwrap();
-            let time_index = icon_index + ICON.len();
-            let time_text = &output[time_index..time_index + 8]; // HH:MM:SS
-            let time_segments: Vec<_> = time_text.split(":").collect();
-            assert_eq!(time_segments.len(), 3);
-
-            let local_now = chrono::Local::now();
-            let hour = time_segments[0].parse::<u32>().unwrap();
-            let min = time_segments[1].parse::<u32>().unwrap();
-            let sec = time_segments[2].parse::<u32>().unwrap();
-            let time = local_now
-                .with_hour(hour)
-                .and_then(|t| t.with_minute(min))
-                .and_then(|t| t.with_second(sec))
-                .unwrap();
-            let diff = (time - local_now).num_seconds().abs();
-            assert!(
-                diff < 5,
-                "{shell}: time difference is too large: {diff} seconds"
-            );
+            let now = chrono::Local::now();
+            assert_time_segment_exists(&output, now, 2);
         }
     }
 }
 
 mod user {
     use super::*;
+
+    fn assert_user_segment_exists(output: &str) {
+        let user = uzers::get_current_username()
+            .unwrap()
+            .to_string_lossy()
+            .to_string();
+        let host = hostname::get().unwrap().to_string_lossy().to_string();
+
+        assert!(output.contains(&format!(" {user}@{host} ")), "{output}");
+    }
 
     #[test]
     fn user_host() {
@@ -352,16 +382,7 @@ mod user {
         for shell in SHELLS {
             let output = run_prompt(env, shell, &PromptInput::new(), ".");
 
-            let user = uzers::get_current_username()
-                .unwrap()
-                .to_string_lossy()
-                .to_string();
-            let host = hostname::get().unwrap().to_string_lossy().to_string();
-
-            assert!(
-                output.contains(&format!(" {user}@{host} ")),
-                "{shell}: {output}"
-            );
+            assert_user_segment_exists(&output);
         }
     }
 }
