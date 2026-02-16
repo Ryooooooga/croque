@@ -220,7 +220,213 @@ mod gh_pull_request {
 }
 
 mod git_status {
-    // TODO
+    use super::*;
+
+    const BRANCH_ICON: &str = "  ";
+    const SYMBOL_ADDED: &str = "+";
+    const SYMBOL_MODIFIED: &str = "…";
+
+    fn assert_git_status_segment_not_exists(output: &str) {
+        assert!(!output.contains(BRANCH_ICON), "{output}");
+    }
+
+    fn assert_git_status_segment_branch(output: &str, branch: &str) {
+        assert!(
+            output.contains(&format!("{BRANCH_ICON}{branch}")),
+            "{output}"
+        );
+    }
+
+    #[test]
+    fn not_in_git_repo() {
+        let env = &TestEnv::new();
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_not_exists(&output);
+        }
+    }
+
+    #[test]
+    fn empty_repo_main() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_branch(&output, "main");
+        }
+    }
+
+    #[test]
+    fn empty_repo_master() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("master");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_branch(&output, "master");
+        }
+    }
+
+    #[test]
+    fn add_file() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        env.write_file("README", "");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_branch(&output, "main");
+            assert!(output.contains(SYMBOL_ADDED));
+        }
+    }
+
+    #[test]
+    fn stage_file() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        env.write_file("README", "");
+        git.add(&["README"]);
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_branch(&output, "main");
+            assert!(output.contains(SYMBOL_ADDED));
+        }
+    }
+
+    #[test]
+    fn commit_file() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        git.config_set("user.name", "John Doe");
+        git.config_set("user.email", "john.doe@example.com");
+        env.write_file("README", "");
+        git.add(&["README"]);
+        git.commit("Initial commit");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_branch(&output, "main");
+            assert!(!output.contains(SYMBOL_ADDED));
+        }
+    }
+
+    #[test]
+    fn modify_file() {
+        let env = &TestEnv::new();
+        let git = env.git(".");
+
+        git.init("main");
+        git.config_set("user.name", "John Doe");
+        git.config_set("user.email", "john.doe@example.com");
+        env.write_file("README", "");
+        git.add(&["README"]);
+        git.commit("Initial commit");
+        env.write_file("README", "modified");
+
+        for shell in SHELLS {
+            let output = run_prompt(env, shell, &PromptInput::new(), ".");
+
+            assert_git_status_segment_branch(&output, "main");
+            assert!(output.contains(SYMBOL_MODIFIED));
+        }
+    }
+
+    #[test]
+    fn snapshot() {
+        fn setup_none(_env: &TestEnv, _cfg: &mut PromptInput) {}
+
+        fn setup_empty_repo_main(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+        }
+
+        fn setup_empty_repo_master(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("master");
+        }
+
+        fn setup_add_file(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            env.write_file("README", "");
+        }
+
+        fn setup_stage_file(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            env.write_file("README", "");
+            git.add(&["README"]);
+        }
+
+        fn setup_commit_file(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            git.config_set("user.name", "John Doe");
+            git.config_set("user.email", "john.doe@example.com");
+            env.write_file("README", "");
+            git.add(&["README"]);
+            git.commit("Initial commit");
+        }
+
+        fn setup_modify_file(env: &TestEnv, _cfg: &mut PromptInput) {
+            let git = env.git(".");
+
+            git.init("main");
+            git.config_set("user.name", "John Doe");
+            git.config_set("user.email", "john.doe@example.com");
+            env.write_file("README", "");
+            git.add(&["README"]);
+            git.commit("Initial commit");
+            env.write_file("README", "modified");
+        }
+
+        for shell in SHELLS {
+            type SetupFn = fn(&TestEnv, &mut PromptInput);
+            for (testname, setup) in [
+                ("none", setup_none as SetupFn),
+                ("empty_repo_main", setup_empty_repo_main as SetupFn),
+                ("empty_repo_master", setup_empty_repo_master as SetupFn),
+                ("add_file", setup_add_file as SetupFn),
+                ("stage_file", setup_stage_file as SetupFn),
+                ("commit_file", setup_commit_file as SetupFn),
+                ("modify_file", setup_modify_file as SetupFn),
+            ] {
+                let env = &TestEnv::new();
+
+                let mut cfg = PromptInput::new();
+                cfg.snapshot_config();
+                setup(env, &mut cfg);
+
+                let output = run_prompt(env, shell, &cfg, ".");
+
+                insta::assert_snapshot!(format!("{shell}_{}", testname), output);
+            }
+        }
+    }
 }
 
 mod git_user {

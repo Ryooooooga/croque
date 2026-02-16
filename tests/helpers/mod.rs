@@ -41,6 +41,10 @@ impl TestEnv {
         }
     }
 
+    pub fn write_file(&self, filename: &str, content: &str) {
+        std::fs::write(self.path().join(filename), content).unwrap();
+    }
+
     pub fn command(&self, dir: &str) -> Command {
         let mut cmd = Command::new(env!("CARGO_BIN_EXE_croque"));
         cmd.env_clear().current_dir(self.path().join(dir));
@@ -98,6 +102,30 @@ impl GitRepo {
             panic!(
                 "Failed to set git config {}: {}",
                 key,
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+    }
+
+    pub fn add(&self, files: &[&str]) {
+        let output = self.git().arg("add").args(files).output().unwrap();
+        if !output.status.success() {
+            panic!(
+                "Failed to add files to git: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+    }
+
+    pub fn commit(&self, message: &str) {
+        let output = self
+            .git()
+            .args(&["commit", "-m", message])
+            .output()
+            .unwrap();
+        if !output.status.success() {
+            panic!(
+                "Failed to commit: {}",
                 String::from_utf8_lossy(&output.stderr)
             );
         }
