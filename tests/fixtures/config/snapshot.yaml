@@ -270,10 +270,10 @@ direnv:
   content: " {{.status}} "
 
 segment_separators:
-    solid_left: ""
-    wire_left: ""
-    solid_right: ""
-    wire_right: ""
+  solid_left: ""
+  wire_left: ""
+  solid_right: ""
+  wire_right: ""
 
 segments:
   - left:
