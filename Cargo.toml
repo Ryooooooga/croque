@@ -30,4 +30,4 @@ uzers = "0.12"
 
 [dev-dependencies]
 insta = "1.46"
-tempfile = "3.26"
+tempfile = "3.27"
