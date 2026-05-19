@@ -167,7 +167,7 @@ fn working_tree_status(repo: &Repository) -> WorkingTreeStatus {
 }
 
 fn upstream_status(repo: &Repository, head_ref: &Reference) -> Option<UpstreamStatus> {
-    let branch_name = head_ref.shorthand()?;
+    let branch_name = head_ref.shorthand().ok()?;
     let local_branch = repo
         .find_branch(branch_name, git2::BranchType::Local)
         .ok()?;
@@ -192,6 +192,7 @@ fn remote_statuses(repo: &Repository) -> Vec<RemoteStatus> {
 
     remote_names
         .iter()
+        .flatten()
         .flatten()
         .flat_map(|name| repo.find_remote(name).ok())
         .flat_map(|remote| remote.url().map(str::to_string))
