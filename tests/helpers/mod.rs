@@ -129,5 +129,11 @@ impl GitRepo {
                 String::from_utf8_lossy(&output.stderr)
             );
         }
+        let output = self.git().args(&["status"]).output().unwrap();
+        println!(
+            "commit status stdout: {}, stderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
     }
 }

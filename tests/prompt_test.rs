@@ -325,7 +325,10 @@ mod git_status {
             let output = run_prompt(env, shell, &PromptInput::new(), ".");
 
             assert_git_status_segment_branch(&output, "main");
-            assert!(!output.contains(SYMBOL_ADDED));
+            assert!(
+                !output.contains(SYMBOL_ADDED),
+                "actual: {output}, shell: {shell}"
+            );
         }
     }
 
