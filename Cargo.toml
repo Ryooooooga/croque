@@ -12,7 +12,7 @@ keywords = ["bash", "fish", "shell", "prompt", "zsh"]
 [dependencies]
 aho-corasick = "1.1"
 nu-ansi-term = "0.50"
-base64 = "0.22"
+base64 = "0.23"
 bitcode = "0.6"
 chrono = "0.4"
 clap = { version = "4.6", features = ["derive"] }
