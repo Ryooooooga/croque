@@ -311,6 +311,7 @@ pub struct MacOsConfig {
 }
 
 impl MacOsConfig {
+    #[allow(dead_code)]
     fn default_content() -> String {
         "  ".to_string()
     }
@@ -336,6 +337,7 @@ pub struct WindowsOsConfig {
 }
 
 impl WindowsOsConfig {
+    #[allow(dead_code)]
     fn default_content() -> String {
         "  ".to_string()
     }
